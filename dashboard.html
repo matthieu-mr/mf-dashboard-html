@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Devis — Medias France</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-header">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="8" fill="#1a73e8"/>
+        <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C27.156 38 30.07 36.97 32.42 35.22L37.1 39.9L39.9 37.1L35.22 32.42C36.97 30.07 38 27.156 38 24C38 16.268 31.732 10 24 10ZM24 35C17.925 35 13 30.075 13 24C13 17.925 17.925 13 24 13C30.075 13 35 17.925 35 24C35 30.075 30.075 35 24 35Z" fill="white"/>
+        <path d="M21 18V30L30 24L21 18Z" fill="white" opacity="0.8"/>
+      </svg>
+      <div>
+        <div class="sidebar-title">Devis Dashboard</div>
+        <div class="sidebar-subtitle">Medias France</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vues</div>
+      <a class="nav-item active" href="#" onclick="App.navigateTo('overview', this); return false;">
+        <span class="material-icons">dashboard</span>Vue d'ensemble
+      </a>
+      <a class="nav-item" href="#" onclick="App.navigateTo('charts', this); return false;">
+        <span class="material-icons">bar_chart</span>Graphiques
+      </a>
+      <a class="nav-item" href="#" onclick="App.navigateTo('table', this); return false;">
+        <span class="material-icons">table_chart</span>Détail devis
+      </a>
+    </nav>
+
+  </aside>
+
+  <!-- ══ MAIN ═════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <h2 id="page-title">Dashboard Devis</h2>
+        <p id="page-subtitle">Filtré par date de validation</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="last-refresh" class="text-muted"></span>
+        <button class="btn-apply" onclick="App.refreshAll()" title="Actualiser">
+          <span class="material-icons" style="font-size:16px;">refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Barre de filtres ─────────────────────────────────── -->
+    <div class="filter-bar">
+
+      <div class="filter-group">
+        <label class="filter-label">Période</label>
+        <select id="filter-preset" class="filter-select" onchange="App.applyPreset(this.value)">
+          <option value="">Personnalisée</option>
+          <option value="30">30 derniers jours</option>
+          <option value="90" selected>3 derniers mois</option>
+          <option value="180">6 derniers mois</option>
+          <option value="365">12 derniers mois</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Du</label>
+        <input type="date" id="filter-start" class="filter-input">
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Au</label>
+        <input type="date" id="filter-end" class="filter-input">
+      </div>
+
+      <!-- Filtre Commercial -->
+      <div class="filter-group">
+        <label class="filter-label">Commercial</label>
+        <select id="filter-commercial" class="filter-select" style="max-width:180px;">
+          <option value="">Tous</option>
+        </select>
+      </div>
+
+      <!-- Filtre Médias -->
+      <div class="filter-group">
+        <label class="filter-label">Médias</label>
+        <select id="filter-medias" class="filter-select" style="max-width:180px;">
+          <option value="">Tous</option>
+        </select>
+      </div>
+
+      <!-- Filtre Statut -->
+      <div class="filter-group">
+        <label class="filter-label">Statut</label>
+        <select id="filter-statut" class="filter-select">
+          <option value="">Tous</option>
+        </select>
+      </div>
+
+      <button class="btn-apply" id="btn-apply" onclick="App.applyFilters()">
+        <span class="material-icons" style="font-size:15px;">search</span>
+        Appliquer
+      </button>
+
+    </div>
+
+    <!-- Bandeau d'erreur -->
+    <div id="error-banner" class="error-banner hidden" style="margin:16px 28px 0;">
+      <span class="material-icons">error_outline</span>
+      <span id="error-message"></span>
+    </div>
+
+    <!-- ── Corps ────────────────────────────────────────────── -->
+    <div class="page-body">
+
+      <!-- KPIs -->
+      <section id="section-overview">
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">Chargement…</span></div><div class="kpi-value loading-shimmer"></div></div>
+          <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">Chargement…</span></div><div class="kpi-value loading-shimmer"></div></div>
+          <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">Chargement…</span></div><div class="kpi-value loading-shimmer"></div></div>
+        </div>
+      </section>
+
+      <!-- Graphiques -->
+      <section id="section-charts">
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="card-header">
+              <span class="card-title" id="bar-chart-title">CA validé par mois (HT)</span>
+              <span class="card-badge">Barres</span>
+            </div>
+            <div class="chart-wrapper"><canvas id="chart-bar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-header">
+              <span class="card-title" id="line-chart-title">Nb devis validés / mois</span>
+              <span class="card-badge">Lignes</span>
+            </div>
+            <div class="chart-wrapper"><canvas id="chart-line"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tableau -->
+      <section id="section-table">
+        <div class="table-card">
+
+          <div class="table-toolbar">
+            <div class="card-title">Détail des devis</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="table-search">
+                <span class="material-icons">search</span>
+                <input type="text" id="table-search-input"
+                       placeholder="Rechercher client, commercial…"
+                       oninput="App.filterTable(this.value)">
+              </div>
+              <span class="table-count" id="table-count"></span>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="data-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body">
+                <tr><td colspan="99">
+                  <div class="loading-overlay">
+                    <div class="spinner"></div>
+                    <span>Chargement des devis…</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-pagination">
+            <span id="pagination-info" class="text-muted"></span>
+            <button class="btn-page" id="btn-prev" onclick="App.prevPage()" disabled>‹ Préc.</button>
+            <button class="btn-page" id="btn-next" onclick="App.nextPage()" disabled>Suiv. ›</button>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- /.page-body -->
+  </main>
+
+</div><!-- /.app-layout -->
+
+<script src="config.js"></script>
+<script src="code.js"></script>
+
+</body>
+</html>

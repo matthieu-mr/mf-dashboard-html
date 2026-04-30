@@ -1,0 +1,26 @@
+{
+  "name": "html---medias-france-looker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthieu-mr/mf-dashboard-html.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matthieu-mr/mf-dashboard-html/issues"
+  },
+  "homepage": "https://github.com/matthieu-mr/mf-dashboard-html#readme",
+  "dependencies": {
+    "@google-cloud/bigquery": "^8.3.0",
+    "axios": "^1.15.2"
+  }
+}

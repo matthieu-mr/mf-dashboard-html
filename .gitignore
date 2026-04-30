@@ -1,0 +1,21 @@
+# -- Configuration locale --------------------------------------
+config.js
+
+# -- Compte de service Google / cles privees -------------------
+00-perso/
+*credentials*.json
+*service-account*.json
+*.pem
+*.key
+
+# -- Dependances Node.js ---------------------------------------
+node_modules/
+npm-debug.log
+package-lock.json
+
+# -- Divers ----------------------------------------------------
+.DS_Store
+Thumbs.db
+*.rar
+*.zip
+test.json
