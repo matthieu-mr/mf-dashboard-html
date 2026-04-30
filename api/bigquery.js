@@ -8,6 +8,8 @@
  *  Routes gérées :
  *    GET /api/filters   → options pour les <select> du dashboard
  *    GET /api/dashboard → KPIs, graphiques, tableau (avec filtres)
+ *
+ *  Table source : alert-autumn-310513.Medias_France.vue_all_devis
  */
 
 import { BigQuery } from '@google-cloud/bigquery';
@@ -17,9 +19,10 @@ import credentialFile from '../00-perso/credentials.json' with { type: 'json' };
 //  Configuration
 // ─────────────────────────────────────────────────────────────────────
 
-const PROJECT_ID  = 'alert-autumn-310513';
-const DATASET     = 'Medias_France';
-const TABLE_DEVIS = 'devis'; // ← Adapter selon le nom réel de la table BQ
+const PROJECT_ID    = 'alert-autumn-310513';
+const DATASET       = 'Medias_France';
+const TABLE_DEVIS   = 'vue_all_devis';
+const STATUT_VALIDE = 'Validé'; // valeur exacte du champ Statut pour les devis validés
 
 const bigqueryClient = new BigQuery({
   projectId:   PROJECT_ID,
@@ -54,7 +57,9 @@ function toBqFormat(rows) {
   return {
     schema: { fields: fields.map(name => ({ name })) },
     rows:   rows.map(r => ({
-      f: fields.map(k => ({ v: r[k] !== null && r[k] !== undefined ? String(r[k]) : null })),
+      f: fields.map(k => ({
+        v: r[k] !== null && r[k] !== undefined ? String(r[k]) : null,
+      })),
     })),
   };
 }
@@ -63,17 +68,23 @@ function toBqFormat(rows) {
  * Construit la clause WHERE et les paramètres nommés BQ depuis les filtres
  * du dashboard. L'objet `overrides` permet de forcer certaines valeurs
  * (ex. { statut: 'Validé' } pour les KPIs).
+ *
+ * Mapping des paramètres frontend → colonnes BQ :
+ *   startDate / endDate  →  Date (DATE)
+ *   commercial           →  Proprietaire (STRING)
+ *   medias               →  Liste_Medias (STRING)
+ *   statut               →  Statut (STRING)
  */
 function buildWhere(params, overrides = {}) {
   const p          = { ...params, ...overrides };
   const conditions = [];
   const qp         = {};
 
-  if (p.startDate)  { conditions.push('date >= @startDate');       qp.startDate  = p.startDate;  }
-  if (p.endDate)    { conditions.push('date <= @endDate');         qp.endDate    = p.endDate;    }
-  if (p.commercial) { conditions.push('commercial = @commercial'); qp.commercial = p.commercial; }
-  if (p.medias)     { conditions.push('medias = @medias');         qp.medias     = p.medias;     }
-  if (p.statut)     { conditions.push('statut = @statut');         qp.statut     = p.statut;     }
+  if (p.startDate)  { conditions.push('`Date` >= @startDate');          qp.startDate  = p.startDate;  }
+  if (p.endDate)    { conditions.push('`Date` <= @endDate');            qp.endDate    = p.endDate;    }
+  if (p.commercial) { conditions.push('Proprietaire = @commercial');    qp.commercial = p.commercial; }
+  if (p.medias)     { conditions.push('Liste_Medias = @medias');        qp.medias     = p.medias;     }
+  if (p.statut)     { conditions.push('Statut = @statut');              qp.statut     = p.statut;     }
 
   return {
     where:  conditions.length ? `WHERE ${conditions.join(' AND ')}` : '',
@@ -93,12 +104,21 @@ export async function handleBigQueryRoute(req, res) {
   try {
 
     // ── GET /api/filters ───────────────────────────────────────────
-    // Retourne les options pour les <select> du dashboard
+    // Options pour les <select> du dashboard
     if (urlPath === '/api/filters') {
       const [com, med, stat] = await Promise.all([
-        bigqueryClient.query({ query: `SELECT DISTINCT commercial AS val FROM ${TABLE} WHERE commercial IS NOT NULL ORDER BY commercial` }),
-        bigqueryClient.query({ query: `SELECT DISTINCT medias AS val FROM ${TABLE} WHERE medias IS NOT NULL ORDER BY medias` }),
-        bigqueryClient.query({ query: `SELECT DISTINCT statut AS val FROM ${TABLE} WHERE statut IS NOT NULL ORDER BY statut` }),
+        bigqueryClient.query({
+          query: `SELECT DISTINCT Proprietaire AS val FROM ${TABLE}
+                  WHERE Proprietaire IS NOT NULL ORDER BY Proprietaire`,
+        }),
+        bigqueryClient.query({
+          query: `SELECT DISTINCT Liste_Medias AS val FROM ${TABLE}
+                  WHERE Liste_Medias IS NOT NULL ORDER BY Liste_Medias`,
+        }),
+        bigqueryClient.query({
+          query: `SELECT DISTINCT Statut AS val FROM ${TABLE}
+                  WHERE Statut IS NOT NULL ORDER BY Statut`,
+        }),
       ]);
       return sendJson(res, 200, {
         commerciaux: toBqFormat(com[0]),
@@ -108,18 +128,18 @@ export async function handleBigQueryRoute(req, res) {
     }
 
     // ── GET /api/dashboard ─────────────────────────────────────────
-    // Retourne KPIs + graphiques + tableau selon les filtres
+    // KPIs + graphiques + tableau selon les filtres
     if (urlPath === '/api/dashboard') {
       // Filtres globaux (graphiques + tableau)
       const { where: whereAll,    params: pAll    } = buildWhere(params);
-      // KPI 1 & 2 : statut forcé à 'Validé' (CA validé, Devis validés)
-      const { where: whereValide, params: pValide } = buildWhere(params, { statut: 'Validé' });
+      // KPI 1 & 2 : statut forcé à STATUT_VALIDE quel que soit le filtre
+      const { where: whereValide, params: pValide } = buildWhere(params, { statut: STATUT_VALIDE });
 
       const [kpi1, kpi2, kpi3, bar, line, tbl] = await Promise.all([
 
         // KPI 1 — CA validé HT
         bigqueryClient.query({
-          query:  `SELECT ROUND(SUM(Montant_HT), 2) AS valeur FROM ${TABLE} ${whereValide}`,
+          query:  `SELECT SUM(Montant_HT) AS valeur FROM ${TABLE} ${whereValide}`,
           params: pValide,
         }),
 
@@ -129,34 +149,36 @@ export async function handleBigQueryRoute(req, res) {
           params: pValide,
         }),
 
-        // KPI 3 — Remise moyenne (tous statuts filtrés)
+        // KPI 3 — Remise moyenne sur les devis filtrés
         bigqueryClient.query({
-          query:  `SELECT ROUND(AVG(remise), 1) AS valeur FROM ${TABLE} ${whereAll}`,
+          query:  `SELECT ROUND(AVG(Pourcentage_total_remise), 1) AS valeur
+                   FROM ${TABLE} ${whereAll}`,
           params: pAll,
         }),
 
-        // Bar chart — CA HT par mois
+        // Bar chart — CA HT validé par mois
         bigqueryClient.query({
           query:  `
             SELECT
-              FORMAT_DATE('%b %Y', DATE_TRUNC(date, MONTH)) AS label,
-              ROUND(SUM(Montant_HT), 0) AS value
-            FROM ${TABLE} ${whereAll}
+              FORMAT_DATE('%b %Y', DATE_TRUNC(\`Date\`, MONTH)) AS label,
+              SUM(Montant_HT) AS value
+            FROM ${TABLE}
+            ${buildWhere(params, { statut: STATUT_VALIDE }).where}
             GROUP BY 1
-            ORDER BY MIN(date)
+            ORDER BY MIN(\`Date\`)
           `,
-          params: pAll,
+          params: buildWhere(params, { statut: STATUT_VALIDE }).params,
         }),
 
-        // Line chart — Nombre de devis par mois
+        // Line chart — Nombre de devis (tous statuts) par mois
         bigqueryClient.query({
           query:  `
             SELECT
-              FORMAT_DATE('%b %Y', DATE_TRUNC(date, MONTH)) AS label,
+              FORMAT_DATE('%b %Y', DATE_TRUNC(\`Date\`, MONTH)) AS label,
               COUNT(*) AS value
             FROM ${TABLE} ${whereAll}
             GROUP BY 1
-            ORDER BY MIN(date)
+            ORDER BY MIN(\`Date\`)
           `,
           params: pAll,
         }),
@@ -164,9 +186,18 @@ export async function handleBigQueryRoute(req, res) {
         // Tableau détaillé (500 lignes max)
         bigqueryClient.query({
           query:  `
-            SELECT date, commercial, medias, statut, Montant_HT
+            SELECT
+              Numero,
+              \`Date\`,
+              client,
+              Proprietaire  AS Commercial,
+              Liste_Medias  AS Medias,
+              type_produit  AS Produit,
+              Statut,
+              Montant_HT,
+              Pourcentage_total_remise AS Remise_pct
             FROM ${TABLE} ${whereAll}
-            ORDER BY date DESC
+            ORDER BY \`Date\` DESC
             LIMIT 500
           `,
           params: pAll,
