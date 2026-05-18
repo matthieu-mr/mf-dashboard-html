@@ -1853,7 +1853,7 @@ getOpportWithFilterCompany("opportunities",57968213).then(value => {
   })
 
 
-/*  ------------- */
+/*  ------------- 
 
 getOneCompanyByID(22019313).then(value => {
 console.log("🚀 ~ getOneEstimateByID ~ value:", value)
@@ -1985,7 +1985,7 @@ let opportunityUpdateToLost = async(idOpport) => {
 }
 
 
-opportunityUpdateToLost(2780853)
+//opportunityUpdateToLost(2780853)
 
 let estimatesEditCustomField =async(idOpport,valueChamp)=>{
   let token=await getToken()

@@ -21,6 +21,7 @@
   "homepage": "https://github.com/matthieu-mr/mf-dashboard-html#readme",
   "dependencies": {
     "@google-cloud/bigquery": "^8.3.0",
-    "axios": "^1.15.2"
+    "axios": "^1.15.2",
+    "google-auth-library": "^9.0.0"
   }
 }

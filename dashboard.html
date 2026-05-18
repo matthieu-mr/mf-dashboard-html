@@ -8,6 +8,8 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -30,14 +32,11 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">Vues</div>
-      <a class="nav-item active" href="#" onclick="App.navigateTo('overview', this); return false;">
+      <a class="nav-item active" href="#" data-view="overview" onclick="App.navigateTo('overview', this); return false;">
         <span class="material-icons">dashboard</span>Vue d'ensemble
       </a>
-      <a class="nav-item" href="#" onclick="App.navigateTo('charts', this); return false;">
-        <span class="material-icons">bar_chart</span>Graphiques
-      </a>
-      <a class="nav-item" href="#" onclick="App.navigateTo('table', this); return false;">
-        <span class="material-icons">table_chart</span>Détail devis
+      <a class="nav-item" href="#" data-view="chat" onclick="App.navigateTo('chat', this); return false;">
+        <span class="material-icons">chat</span>Chat IA
       </a>
     </nav>
 
@@ -61,12 +60,15 @@
     </header>
 
     <!-- ── Barre de filtres ─────────────────────────────────── -->
-    <div class="filter-bar">
+    <div class="filter-bar" id="filter-bar">
 
       <div class="filter-group">
         <label class="filter-label">Période</label>
         <select id="filter-preset" class="filter-select" onchange="App.applyPreset(this.value)">
           <option value="">Personnalisée</option>
+          <option value="week">Cette semaine</option>
+          <option value="month">Ce mois</option>
+          <option value="lastMonth">Le mois dernier</option>
           <option value="30">30 derniers jours</option>
           <option value="90" selected>3 derniers mois</option>
           <option value="180">6 derniers mois</option>
@@ -133,33 +135,13 @@
         </div>
       </section>
 
-      <!-- Graphiques -->
-      <section id="section-charts">
-        <div class="charts-grid">
-          <div class="chart-card">
-            <div class="card-header">
-              <span class="card-title" id="bar-chart-title">CA validé par mois (HT)</span>
-              <span class="card-badge">Barres</span>
-            </div>
-            <div class="chart-wrapper"><canvas id="chart-bar"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <div class="card-header">
-              <span class="card-title" id="line-chart-title">Nb devis validés / mois</span>
-              <span class="card-badge">Lignes</span>
-            </div>
-            <div class="chart-wrapper"><canvas id="chart-line"></canvas></div>
-          </div>
-        </div>
-      </section>
-
       <!-- Tableau -->
       <section id="section-table">
         <div class="table-card">
 
           <div class="table-toolbar">
             <div class="card-title">Détail des devis</div>
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
               <div class="table-search">
                 <span class="material-icons">search</span>
                 <input type="text" id="table-search-input"
@@ -167,6 +149,18 @@
                        oninput="App.filterTable(this.value)">
               </div>
               <span class="table-count" id="table-count"></span>
+              <div class="download-group">
+                <button class="btn-download" type="button"
+                        onclick="App.downloadDevis('csv')"
+                        title="Télécharger en CSV (UTF-8)">
+                  <span class="material-icons">file_download</span> CSV
+                </button>
+                <button class="btn-download" type="button"
+                        onclick="App.downloadDevis('xlsx')"
+                        title="Télécharger en Excel (.xlsx)">
+                  <span class="material-icons">file_download</span> Excel
+                </button>
+              </div>
             </div>
           </div>
 
@@ -190,6 +184,30 @@
             <button class="btn-page" id="btn-next" onclick="App.nextPage()" disabled>Suiv. ›</button>
           </div>
 
+        </div>
+      </section>
+
+      <!-- ══ Chat IA ═══════════════════════════════════════════ -->
+      <section id="section-chat" hidden>
+        <div class="chat-card">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-empty">
+              <span class="material-icons">forum</span>
+              <p>Posez une question en langage naturel à votre agent BigQuery.</p>
+              <p class="text-muted" style="font-size:13px;">Exemples : « CA validé en avril », « top 5 commerciaux ce mois », « quels médias ont rapporté le plus l'an dernier ? »</p>
+            </div>
+          </div>
+          <form class="chat-inputbar" id="chat-form" onsubmit="App.sendChat(); return false;">
+            <textarea
+              id="chat-input"
+              class="chat-input"
+              rows="1"
+              placeholder="Pose ta question…"
+              onkeydown="App.chatKeydown(event)"></textarea>
+            <button type="submit" class="btn-apply" id="chat-send">
+              <span class="material-icons" style="font-size:16px;">send</span>
+            </button>
+          </form>
         </div>
       </section>
 

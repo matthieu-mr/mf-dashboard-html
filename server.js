@@ -4,7 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { handleBigQueryRoute } from './api/bigquery.js';
-import { handleSellsyRoute } from './api/sellsy.js';
+import { handleSellsyRoute }   from './api/sellsy.js';
+import { handleChatRoute }     from './api/chat.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,11 @@ const server = http.createServer(async (req, res) => {
     // Routes BigQuery (dashboard)
     if (urlPath === '/api/filters' || urlPath === '/api/dashboard') {
       return handleBigQueryRoute(req, res);
+    }
+
+    // Route Chat IA (Conversational Analytics API)
+    if (urlPath === '/api/chat') {
+      return handleChatRoute(req, res);
     }
 
     // Routes Sellsy
@@ -80,6 +86,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log('Serveur demarre sur http://localhost:' + PORT + '/');
   console.log('Filtres  : http://localhost:' + PORT + '/api/filters');
   console.log('Dashboard: http://localhost:' + PORT + '/api/dashboard');
+  console.log('Chat IA  : POST http://localhost:' + PORT + '/api/chat');
   console.log('Sellsy   : http://localhost:' + PORT + '/api/sellsy');
   console.log('');
 });
