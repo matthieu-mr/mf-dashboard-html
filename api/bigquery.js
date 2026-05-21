@@ -12,8 +12,18 @@
  *  Table source : alert-autumn-310513.Medias_France.vue_all_devis
  */
 
-import { BigQuery } from '@google-cloud/bigquery';
-import credentialFile from '../00-perso/credentials.json' with { type: 'json' };
+import { BigQuery }   from '@google-cloud/bigquery';
+import { readFileSync } from 'fs';
+import { resolve }      from 'path';
+import { fileURLToPath } from 'url';
+import { dirname }      from 'path';
+
+// Local : 00-perso/credentials.json
+// Production (Cloud Run) : chemin monté via GOOGLE_APPLICATION_CREDENTIALS
+const __dir      = dirname(fileURLToPath(import.meta.url));
+const credPath   = process.env.GOOGLE_APPLICATION_CREDENTIALS
+  || resolve(__dir, '../00-perso/credentials.json');
+const credentialFile = JSON.parse(readFileSync(credPath, 'utf8'));
 
 // ─────────────────────────────────────────────────────────────────────
 //  Configuration

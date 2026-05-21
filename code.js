@@ -10,6 +10,8 @@
 
 const PAGE_SIZE = 50;
 
+
+
 /* ── État global ─────────────────────────────────────────── */
 let _charts        = {};
 let _tableData     = [];

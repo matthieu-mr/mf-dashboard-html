@@ -1,6 +1,3 @@
-# -- Configuration locale --------------------------------------
-config.js
-
 # -- Compte de service Google / cles privees -------------------
 00-perso/
 *credentials*.json
