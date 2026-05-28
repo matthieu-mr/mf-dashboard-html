@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Medias France Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+
+    <div class="login-logo">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="8" fill="#1a73e8"/>
+        <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C27.156 38 30.07 36.97 32.42 35.22L37.1 39.9L39.9 37.1L35.22 32.42C36.97 30.07 38 27.156 38 24C38 16.268 31.732 10 24 10ZM24 35C17.925 35 13 30.075 13 24C13 17.925 17.925 13 24 13C30.075 13 35 17.925 35 24C35 30.075 30.075 35 24 35Z" fill="white"/>
+        <path d="M21 18V30L30 24L21 18Z" fill="white" opacity="0.8"/>
+      </svg>
+      <h1>Devis Dashboard</h1>
+    </div>
+
+    <p class="login-subtitle">
+      Connecte-toi avec ton compte Google <strong>@medias-france.fr</strong>
+      pour accéder au dashboard.
+    </p>
+
+    <!-- Le bouton officiel Google sera injecté ici par GIS -->
+    <div id="g_id_signin" style="display:flex;justify-content:center;"></div>
+
+    <hr class="login-divider">
+
+    <p class="login-note">
+      Accès réservé aux salariés Medias France.<br>
+      Si tu n'arrives pas à te connecter, contacte l'admin.
+    </p>
+
+    <div id="login-error" class="login-error hidden"></div>
+
+  </div>
+
+  <script>
+    'use strict';
+
+    const ERR = document.getElementById('login-error');
+    function showError(msg) {
+      ERR.textContent = msg;
+      ERR.classList.remove('hidden');
+    }
+    function hideError() {
+      ERR.classList.add('hidden');
+    }
+
+    // 1. Récupère la config publique (clientId) depuis le serveur
+    async function loadConfigAndInit() {
+      let cfg;
+      try {
+        const r = await fetch('/api/auth/config');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        cfg = await r.json();
+      } catch (e) {
+        showError("Impossible de joindre le serveur d'authentification.");
+        return;
+      }
+
+      if (!cfg.clientId) {
+        showError(
+          "OAuth non configuré : ajoute ton Google OAuth Client ID dans " +
+          "00-perso/oauth-config.json puis redémarre le serveur."
+        );
+        return;
+      }
+
+      // 2. Initialise GIS et rend le bouton
+      function init() {
+        if (!window.google || !google.accounts || !google.accounts.id) {
+          // Le script GIS n'est pas encore chargé — on retente.
+          return setTimeout(init, 100);
+        }
+
+        google.accounts.id.initialize({
+          client_id:      cfg.clientId,
+          callback:       handleCredentialResponse,
+          ux_mode:        'popup',
+          auto_select:    false,
+          // Restreint au niveau Google (en plus de la vérif serveur) :
+          hd:             cfg.allowedDomain,
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById('g_id_signin'),
+          {
+            theme:       'outline',
+            size:        'large',
+            type:        'standard',
+            text:        'signin_with',
+            shape:       'rectangular',
+            logo_alignment: 'left',
+            width:       320,
+          }
+        );
+      }
+
+      init();
+    }
+
+    // 3. Envoie l'ID token reçu de Google au backend
+    async function handleCredentialResponse(response) {
+      hideError();
+      if (!response || !response.credential) {
+        showError("Aucun identifiant Google reçu.");
+        return;
+      }
+
+      try {
+        const r = await fetch('/api/auth/google', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ credential: response.credential }),
+        });
+
+        const data = await r.json().catch(() => ({}));
+
+        if (!r.ok) {
+          showError(data.error || ('Erreur ' + r.status));
+          return;
+        }
+
+        // OK → cookie posé par le serveur, on file au dashboard
+        window.location.replace('/dashboard.html');
+
+      } catch (e) {
+        showError("Erreur réseau pendant la connexion : " + e.message);
+      }
+    }
+
+    loadConfigAndInit();
+  </script>
+
+</body>
+</html>

@@ -175,6 +175,52 @@ p  { color: var(--text-secondary); }
 }
 
 /* ════════════════════════════════════════════════════════════
+   USER BOX (topbar) — avatar + email + logout
+   ════════════════════════════════════════════════════════════ */
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: #fff;
+}
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e8eaed;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.user-email {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-logout:hover {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+/* ════════════════════════════════════════════════════════════
    DASHBOARD LAYOUT — Sidebar + Main
    ════════════════════════════════════════════════════════════ */
 .app-layout {

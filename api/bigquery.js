@@ -18,12 +18,16 @@ import { resolve }      from 'path';
 import { fileURLToPath } from 'url';
 import { dirname }      from 'path';
 
-// Local : 00-perso/credentials.json
-// Production (Cloud Run) : chemin monté via GOOGLE_APPLICATION_CREDENTIALS
-const __dir      = dirname(fileURLToPath(import.meta.url));
-const credPath   = process.env.GOOGLE_APPLICATION_CREDENTIALS
-  || resolve(__dir, '../00-perso/credentials.json');
-const credentialFile = JSON.parse(readFileSync(credPath, 'utf8'));
+// Priorité : variable d'env JSON (Heroku) → fichier local (dev)
+let credentialFile;
+if (process.env.BQ_CREDENTIALS) {
+  credentialFile = JSON.parse(process.env.BQ_CREDENTIALS);
+} else {
+  const __dir    = dirname(fileURLToPath(import.meta.url));
+  const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
+    || resolve(__dir, '../00-perso/credentials.json');
+  credentialFile = JSON.parse(readFileSync(credPath, 'utf8'));
+}
 
 // ─────────────────────────────────────────────────────────────────────
 //  Configuration

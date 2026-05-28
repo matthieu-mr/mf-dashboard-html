@@ -34,17 +34,63 @@ const App = (() => {
 
   /* ── Init ──────────────────────────────────────────────── */
   async function init() {
-    // Sur la page de login, on n'initialise pas le dashboard : on attend
-    // que l'utilisateur clique sur "Se connecter" → signIn() redirige.
+    // La page de login n'a pas le grid : on n'init pas le dashboard ici.
     if (!document.getElementById('kpi-grid')) return;
 
     _setFilterInputs();
 
-    // Charger les options des filtres ET les données en parallèle
+    // 1) Vérifie la session + affiche l'user dans la topbar.
+    //    Si pas de session → redirection automatique vers /login.html.
+    const user = await _loadCurrentUser();
+    if (!user) return;
+
+    // 2) Charger les options des filtres ET les données en parallèle
     await Promise.all([
       _loadFilterOptions(),
       _loadDashboard(),
     ]);
+  }
+
+  /* ── Session utilisateur ───────────────────────────────── */
+  async function _loadCurrentUser() {
+    try {
+      const r = await fetch('/api/auth/me');
+      if (r.status === 401) {
+        window.location.replace('/login.html');
+        return null;
+      }
+      if (!r.ok) return null;
+      const me = await r.json();
+      _renderUserBox(me);
+      return me;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function _renderUserBox(me) {
+    const box   = document.getElementById('user-box');
+    const email = document.getElementById('user-email');
+    const av    = document.getElementById('user-avatar');
+    if (!box || !email || !av) return;
+
+    email.textContent = me.email || '';
+    box.title         = me.name ? `${me.name} (${me.email})` : (me.email || '');
+    if (me.picture) {
+      av.src = me.picture;
+      av.style.display = '';
+    } else {
+      av.removeAttribute('src');
+      av.style.display = 'none';
+    }
+    box.classList.remove('hidden');
+  }
+
+  async function logout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (_) { /* on redirige quand même */ }
+    window.location.replace('/login.html');
   }
 
   function _setFilterInputs() {
@@ -327,6 +373,10 @@ const App = (() => {
 
     try {
       const res = await fetch(url);
+      if (res.status === 401) {
+        window.location.replace('/login.html');
+        return null;
+      }
       if (!res.ok) {
         let detail = '';
         try { const j = await res.json(); detail = j.error ? ' — ' + j.error : ''; } catch (_) {}
@@ -495,6 +545,12 @@ const App = (() => {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ question }),
       });
+
+      if (res.status === 401) {
+        window.location.replace('/login.html');
+        return;
+      }
+
       const data = await res.json();
 
       thinkingEl.remove();
@@ -837,15 +893,11 @@ const App = (() => {
   }
 
 
-  // -- Login : le bouton "Se connecter" redirige vers le dashboard.
-  // L'authentification BigQuery est faite par server.js via le compte
-  // de service. Aucune authentification utilisateur n'est requise.
-  function signIn() {
-    window.location.href = 'dashboard.html';
-  }
+  // -- Auth : voir _loadCurrentUser() / logout() plus haut.
+  // La page /login.html gère elle-même Google Sign-In via GIS.
 
   return {
-    init, signIn,
+    init, logout,
     applyFilters, applyPreset, refreshAll,
     filterTable, nextPage, prevPage,
     navigateTo,
