@@ -1,5 +1,14 @@
 import axios from 'axios';
-import credentialFile from '../00-perso/credentials-sellsy.json' with { type: 'json' };
+import { createRequire } from 'module';
+
+// Priorité : variable d'env JSON (Heroku) → fichier local (dev)
+let credentialFile;
+if (process.env.SELLSY_CREDENTIALS) {
+  credentialFile = JSON.parse(process.env.SELLSY_CREDENTIALS);
+} else {
+  const _require = createRequire(import.meta.url);
+  credentialFile = _require('../00-perso/credentials-sellsy.json');
+}
 //import * as gsheetAction from '../api-global/googleSheetAPI.js'
 
 
