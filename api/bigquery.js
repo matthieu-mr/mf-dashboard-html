@@ -9,7 +9,20 @@
  *    GET /api/filters   → options pour les <select> du dashboard
  *    GET /api/dashboard → KPIs, graphiques, tableau (avec filtres)
  *
- *  Table source : alert-autumn-310513.Medias_France.vue_all_devis
+ *  Table source : alert-autumn-310513.Medias_France.vue_opport_lien_devis
+ *
+ *  Schéma principal (colonnes utilisées par le dashboard) :
+ *    devis_rn, devis_numero, devis_statut
+ *    devis_date_de_validation_de_devis          → date de référence pour le CA
+ *    devis_montant_ht                 → CA (HT)
+ *    devis_pourcentage_total_remise   → remise (%)
+ *    devis_nom_client                 → nom du client
+ *    devis_liste_medias               → médias du devis (liste séparée par virgules)
+ *    user_proprietaire_nom_complet    → commercial propriétaire
+ *    opport_nom                       → nom de l'opportunité
+ *    opport_pipeline, opport_etape    → pipeline / étape CRM
+ *
+ *  Règle CA : devis_statut IN ('invoiced', 'partialinvoiced')
  */
 
 import { BigQuery }   from '@google-cloud/bigquery';
@@ -35,9 +48,9 @@ if (process.env.BQ_CREDENTIALS) {
 
 const PROJECT_ID    = 'alert-autumn-310513';
 const DATASET       = 'Medias_France';
-const TABLE_DEVIS   = 'vue_all_devis';
-// La "validité" d'un devis est déterminée par la présence d'une
-// Date_de_validation_de_devis (= date du CA). Pas besoin de filtrer sur Statut.
+const TABLE_DEVIS   = 'vue_opport_lien_devis';
+// Le CA est déterminé par devis_statut IN ('invoiced', 'partialinvoiced').
+// Si l'utilisateur sélectionne un statut spécifique, ce filtre remplace le défaut.
 
 const bigqueryClient = new BigQuery({
   projectId:   PROJECT_ID,
@@ -98,25 +111,49 @@ function toBqFormat(rows) {
  * Construit la clause WHERE et les paramètres nommés BQ depuis les filtres
  * du dashboard.
  *
- * Mapping des paramètres frontend → colonnes BQ :
- *   startDate / endDate  →  Date_de_validation_de_devis (DATE) — date du CA
- *   commercial           →  Proprietaire (STRING)
- *   medias               →  Liste_Medias (STRING)
- *   statut               →  Statut (STRING)
+ * Mapping des paramètres frontend → colonnes BQ (vue_opport_lien_devis) :
+ *   startDate / endDate  →  devis_date_de_validation_de_devis (DATE)
+ *   commercial           →  user_proprietaire_nom_complet (STRING)
+ *   medias               →  devis_liste_medias (STRING — recherche partielle LIKE)
+ *   statut               →  devis_statut (STRING)
  *
- * Note : on filtre toujours sur Date_de_validation_de_devis IS NOT NULL
- *        pour ne garder que les devis effectivement validés (= CA).
+ * Comportement par défaut (sans filtre statut) : seuls les devis
+ * de statut 'invoiced' ou 'partialinvoiced' sont inclus (= CA validé).
+ * Si l'utilisateur sélectionne explicitement un statut, ce filtre le remplace.
  */
 function buildWhere(params) {
   const p          = { ...params };
-  const conditions = ['Date_de_validation_de_devis IS NOT NULL'];
+  // Condition de base : un devis validé a toujours une date de signature
+  const conditions = ['devis_date_de_validation_de_devis IS NOT NULL'];
   const qp         = {};
 
-  if (p.startDate)  { conditions.push('Date_de_validation_de_devis >= @startDate'); qp.startDate  = p.startDate;  }
-  if (p.endDate)    { conditions.push('Date_de_validation_de_devis <= @endDate');   qp.endDate    = p.endDate;    }
-  if (p.commercial) { conditions.push('Proprietaire = @commercial');                qp.commercial = p.commercial; }
-  if (p.medias)     { conditions.push('produit_nom_produit = @medias');             qp.medias     = p.medias;     }
-  if (p.statut)     { conditions.push('Statut = @statut');                          qp.statut     = p.statut;     }
+  // ── Plage de dates (date de signature = date de validation)
+  if (p.startDate) {
+    conditions.push('devis_date_de_validation_de_devis >= @startDate');
+    qp.startDate = p.startDate;
+  }
+  if (p.endDate) {
+    conditions.push('devis_date_de_validation_de_devis <= @endDate');
+    qp.endDate = p.endDate;
+  }
+
+  // ── Commercial (propriétaire du devis)
+  if (p.commercial) {
+    conditions.push('user_proprietaire_nom_complet = @commercial');
+    qp.commercial = p.commercial;
+  }
+
+  // ── Médias (recherche dans la liste séparée par virgules)
+  if (p.medias) {
+    conditions.push('LOWER(devis_liste_medias) LIKE LOWER(CONCAT(\'%\', @medias, \'%\'))');
+    qp.medias = p.medias;
+  }
+
+  // ── Statut (filtre optionnel en plus de la condition de base)
+  if (p.statut) {
+    conditions.push('devis_statut = @statut');
+    qp.statut = p.statut;
+  }
 
   return {
     where:  `WHERE ${conditions.join(' AND ')}`,
@@ -135,23 +172,60 @@ export async function handleBigQueryRoute(req, res) {
 
   try {
 
+    // ── GET /api/schema ────────────────────────────────────────────
+    // Route de diagnostic : liste les colonnes réelles de la table
+    if (urlPath === '/api/schema') {
+      const [rows] = await bigqueryClient.query({
+        query: `SELECT * FROM ${TABLE} LIMIT 0`,
+      });
+      const meta = rows.length === 0
+        ? { columns: [] }
+        : { columns: Object.keys(rows[0]) };
+      // Fallback via getMetadata si LIMIT 0 renvoie vide
+      const [table] = await bigqueryClient
+        .dataset(DATASET)
+        .table(TABLE_DEVIS)
+        .getMetadata();
+      const fields = (table.schema && table.schema.fields) || [];
+      return sendJson(res, 200, {
+        table:   `${PROJECT_ID}.${DATASET}.${TABLE_DEVIS}`,
+        columns: fields.map(f => ({ name: f.name, type: f.type })),
+      });
+    }
+
     // ── GET /api/filters ───────────────────────────────────────────
     // Options pour les <select> du dashboard
     if (urlPath === '/api/filters') {
       const [com, med, stat] = await Promise.all([
+
+        // Commerciaux : propriétaires distincts (non nuls)
         bigqueryClient.query({
-          query: `SELECT DISTINCT Proprietaire AS val FROM ${TABLE}
-                  WHERE Proprietaire IS NOT NULL ORDER BY Proprietaire`,
+          query: `SELECT DISTINCT user_proprietaire_nom_complet AS val
+                  FROM ${TABLE}
+                  WHERE user_proprietaire_nom_complet IS NOT NULL
+                    AND TRIM(user_proprietaire_nom_complet) != ''
+                  ORDER BY user_proprietaire_nom_complet`,
         }),
+
+        // Médias : on dénormalise la liste CSV pour obtenir des valeurs unitaires
         bigqueryClient.query({
-          query: `SELECT DISTINCT produit_nom_produit AS val FROM ${TABLE}
-                  WHERE produit_nom_produit IS NOT NULL ORDER BY produit_nom_produit`,
+          query: `SELECT DISTINCT TRIM(media) AS val
+                  FROM ${TABLE},
+                       UNNEST(SPLIT(devis_liste_medias, ',')) AS media
+                  WHERE devis_liste_medias IS NOT NULL
+                    AND TRIM(media) != ''
+                  ORDER BY val`,
         }),
+
+        // Statuts de devis
         bigqueryClient.query({
-          query: `SELECT DISTINCT Statut AS val FROM ${TABLE}
-                  WHERE Statut IS NOT NULL ORDER BY Statut`,
+          query: `SELECT DISTINCT devis_statut AS val
+                  FROM ${TABLE}
+                  WHERE devis_statut IS NOT NULL
+                  ORDER BY devis_statut`,
         }),
       ]);
+
       return sendJson(res, 200, {
         commerciaux: toBqFormat(com[0]),
         medias:      toBqFormat(med[0]),
@@ -160,8 +234,8 @@ export async function handleBigQueryRoute(req, res) {
     }
 
     // ── GET /api/dashboard ─────────────────────────────────────────
-    // KPIs + graphiques + tableau selon les filtres
-    // (toujours basés sur Date_de_validation_de_devis = date du CA)
+    // KPIs + tableau selon les filtres
+    // Par défaut : devis_statut IN ('invoiced', 'partialinvoiced') = CA validé
     if (urlPath === '/api/dashboard') {
       const { where, params: qp } = buildWhere(params);
 
@@ -169,7 +243,7 @@ export async function handleBigQueryRoute(req, res) {
 
         // KPI 1 — CA validé HT
         bigqueryClient.query({
-          query:  `SELECT SUM(Montant_HT) AS valeur FROM ${TABLE} ${where}`,
+          query:  `SELECT SUM(devis_montant_ht) AS valeur FROM ${TABLE} ${where}`,
           params: qp,
         }),
 
@@ -179,27 +253,26 @@ export async function handleBigQueryRoute(req, res) {
           params: qp,
         }),
 
-        // KPI 3 — Remise moyenne sur les devis validés
+        // KPI 3 — Remise moyenne
         bigqueryClient.query({
-          query:  `SELECT ROUND(AVG(Pourcentage_total_remise), 1) AS valeur
-                   FROM ${TABLE} ${where}`,
+          query:  `SELECT ROUND(AVG(devis_pourcentage_total_remise), 1) AS valeur FROM ${TABLE} ${where}`,
           params: qp,
         }),
 
-        // Tableau détaillé (500 lignes max)
+        // Tableau détaillé (500 lignes max, triées par date de signature desc)
         bigqueryClient.query({
-          query:  `
+          query: `
             SELECT
-              Numero,
-              Date_de_validation_de_devis AS Date_validation,
-              client,
-              Proprietaire         AS Commercial,
-              produit_nom_produit  AS Medias,
-              Statut,
-              Montant_HT,
-              Pourcentage_total_remise AS Remise_pct
+              devis_numero                      AS Numero,
+              devis_date_de_validation_de_devis           AS Date_validation,
+              opport_nom                        AS Client,
+              user_proprietaire_nom_complet     AS Commercial,
+              devis_liste_medias                AS Medias,
+              devis_statut                      AS Statut,
+              devis_montant_ht                  AS Montant_HT,
+              devis_pourcentage_total_remise    AS Remise_pct
             FROM ${TABLE} ${where}
-            ORDER BY Date_de_validation_de_devis DESC
+            ORDER BY devis_date_de_validation_de_devis DESC
             LIMIT 500
           `,
           params: qp,

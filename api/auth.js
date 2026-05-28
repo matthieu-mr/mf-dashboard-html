@@ -32,8 +32,17 @@
  */
 
 import crypto from 'crypto';
+import { createRequire } from 'module';
 import { OAuth2Client } from 'google-auth-library';
-import oauthConfig from '../00-perso/oauth-config.json' with { type: 'json' };
+
+// Priorité : variable d'env JSON (Heroku) → fichier local (dev)
+let oauthConfig;
+if (process.env.OAUTH_CONFIG) {
+  oauthConfig = JSON.parse(process.env.OAUTH_CONFIG);
+} else {
+  const _require = createRequire(import.meta.url);
+  oauthConfig = _require('../00-perso/oauth-config.json');
+}
 
 // ─────────────────────────────────────────────────────────────────────
 //  Configuration

@@ -95,8 +95,8 @@ const server = http.createServer(async (req, res) => {
     // ── À partir d'ici, authentification requise
     if (!requireAuth(req, res, urlPath)) return;
 
-    // Routes BigQuery (dashboard)
-    if (urlPath === '/api/filters' || urlPath === '/api/dashboard') {
+    // Routes BigQuery (dashboard + diagnostic schéma)
+    if (urlPath === '/api/filters' || urlPath === '/api/dashboard' || urlPath === '/api/schema') {
       return handleBigQueryRoute(req, res);
     }
 

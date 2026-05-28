@@ -23,8 +23,17 @@
  */
 
 import { GoogleAuth } from 'google-auth-library';
+import { createRequire } from 'module';
 import axios from 'axios';
-import credentialFile from '../00-perso/credentials.json' with { type: 'json' };
+
+// Priorité : variable d'env JSON (Heroku) → fichier local (dev)
+let credentialFile;
+if (process.env.BQ_CREDENTIALS) {
+  credentialFile = JSON.parse(process.env.BQ_CREDENTIALS);
+} else {
+  const _require = createRequire(import.meta.url);
+  credentialFile = _require('../00-perso/credentials.json');
+}
 
 // ─────────────────────────────────────────────────────────────────────
 //  Configuration
