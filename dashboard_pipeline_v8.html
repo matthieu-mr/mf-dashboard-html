@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pipeline — Catégorisation ajustée</title>
+<style>
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b6b6b;
+  --color-text-tertiary: #9b9b9b;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f5f3;
+  --color-background-tertiary: #fafaf7;
+  --color-border-primary: rgba(0,0,0,0.4);
+  --color-border-secondary: rgba(0,0,0,0.15);
+  --color-border-tertiary: rgba(0,0,0,0.08);
+  --border-radius-md: 6px;
+  --border-radius-lg: 10px;
+}
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-background-tertiary);
+  margin: 0 auto;
+  padding: 1.5rem;
+  max-width: 1400px;
+}
+h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.5rem; }
+.subtitle { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<h1>Dashboard Pipeline NEW_SALES — v8</h1>
+<div class="subtitle">Oct 2025 → Mar 2026 · Sources Rebuy/Nurturing/Liste cold call rebasculées vers SDR · CPL/CAC fully loaded entre parenthèses</div>
+<style>
+.dash{font-family:var(--font-sans);padding:1rem 0}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:1rem}
+.lbl{font-size:11px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.tg{display:inline-flex;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;flex-wrap:wrap}
+.tg button{background:transparent;border:none;padding:6px 11px;font-size:12px;cursor:pointer;color:var(--color-text-secondary);font-family:inherit;border-right:0.5px solid var(--color-border-tertiary)}
+.tg button:last-child{border-right:none}
+.tg button.act{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.def{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 13px;margin-bottom:1rem;font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.def b{color:var(--color-text-primary);font-weight:500}
+.section-h{font-size:14px;font-weight:500;margin:1.5rem 0 0.5rem;padding-bottom:0.4rem;border-bottom:0.5px solid var(--color-border-secondary)}
+.pipe-h{display:flex;align-items:baseline;justify-content:space-between;margin:1rem 0 0.5rem;padding-bottom:0.4rem;border-bottom:0.5px solid var(--color-border-tertiary)}
+.pipe-t{font-size:13px;font-weight:500}
+.pipe-t .pill{font-size:9px;font-weight:500;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.pipe-meta{font-size:11px;color:var(--color-text-secondary);font-variant-numeric:tabular-nums}
+.pipe-meta b{color:var(--color-text-primary);font-weight:500}
+.tbl-wrap{overflow-x:auto;max-width:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;min-width:680px}
+.tbl th{text-align:left;font-weight:500;font-size:9px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.3px;padding:7px 5px;border-bottom:0.5px solid var(--color-border-secondary);white-space:nowrap}
+.tbl th.num{text-align:right}
+.tbl td{padding:7px 5px;border-bottom:0.5px solid var(--color-border-tertiary);font-variant-numeric:tabular-nums;font-size:11px}
+.tbl td.num{text-align:right}
+.tbl tr.tot td{background:var(--color-background-secondary);font-weight:500;border-top:0.5px solid var(--color-border-secondary);border-bottom:none}
+.cat-tag{font-weight:500;padding:1px 6px;border-radius:3px;font-size:11px}
+.media-name{font-weight:500;font-size:11px}
+.dash-c{color:var(--color-text-tertiary)}
+.bw{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+.bar{width:30px;height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden;flex-shrink:0}
+.bf{height:100%;border-radius:2px}
+.fc{background:#1D9E75}
+.fr{background:#378ADD}
+.pc{font-weight:500;min-width:42px;text-align:right;font-size:11px;color:#0F6E56}
+.pr{font-weight:500;min-width:42px;text-align:right;font-size:11px;color:#185FA5}
+.pz{color:var(--color-text-tertiary);font-weight:400}
+.cost{font-weight:500;color:#72243E}
+.cpl{font-weight:500;color:#BA7517}
+.cpa{font-weight:500;color:#A32D2D}
+.full{color:var(--color-text-tertiary);font-size:10px;font-weight:400;white-space:nowrap}
+.chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:1rem}
+.chart-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px}
+.chart-title{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+.chart-svg{width:100%;height:160px;display:block}
+.chart-leg{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;font-size:10px;color:var(--color-text-secondary)}
+.chart-leg span{display:inline-flex;align-items:center;gap:4px}
+.chart-leg i{width:10px;height:2px;display:inline-block;border-radius:1px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+</style>
+<div class="dash">
+<div class="def"><b>Dashboard</b> — Tableau catégories en haut, tableau médias en bas. Sélecteur période + filtre source. <b>Coûts Marketing, SDR &amp; Mix Mkt/SDR</b> intégrés. <b>Périmètre SDR</b> inclut désormais : sources "Marketing - Rebuy", "Marketing - Nurturing", "Marketing - Liste cold call" (rebasculées de Marketing vers SDR). <b>SDR</b> réparti 1/3 Conso · 2/3 Business. <b>Mix Mkt/SDR</b> = source <i>"Marketing - Outbound - Emailing - Call"</i>, coût virtuel = 50% × CPL_Mkt + 50% × CPL_SDR. <b>Coût, CPL et CAC entre parenthèses</b> = "fully loaded" avec part de coût sales allouée selon le temps passé (le temps non-RDV est attribué à Sales). <b>Prise de contact Marketing par média</b> = RDV média ÷ tx prise RDV global Marketing. Médias filtrés (≥10 opps en cumul, ≥3 en mensuel).</div>
+<div class="toolbar">
+<span class="lbl">Période :</span>
+<div class="tg" id="month-tg">
+<button data-p="all" onclick="setP('all')">Cumul 6 mois</button>
+<button data-p="2025-10" onclick="setP('2025-10')">Oct 25</button>
+<button data-p="2025-11" onclick="setP('2025-11')">Nov 25</button>
+<button data-p="2025-12" onclick="setP('2025-12')">Déc 25</button>
+<button data-p="2026-01" onclick="setP('2026-01')" class="act">Jan 26</button>
+<button data-p="2026-02" onclick="setP('2026-02')">Fév 26</button>
+<button data-p="2026-03" onclick="setP('2026-03')">Mar 26</button>
+</div>
+</div>
+<div class="section-h">📊 Vue par catégorie de source</div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Conso <span class="pill" style="background:#E6F1FB;color:#0C447C">Pipeline</span></div><div class="pipe-meta" id="cat-conso-tot"></div></div>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Catégorie</th><th class="num">Coût</th><th class="num">Prise contact</th><th class="num">Tx RDV</th><th class="num">Nb RDV</th><th class="num">CPL</th><th class="num">Tx conv</th><th class="num">Signat.</th><th class="num">CPA</th></tr></thead>
+<tbody id="tbl-cat-conso"></tbody></table></div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Business <span class="pill" style="background:#FAECE7;color:#712B13">Pipeline</span></div><div class="pipe-meta" id="cat-business-tot"></div></div>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Catégorie</th><th class="num">Coût</th><th class="num">Prise contact</th><th class="num">Tx RDV</th><th class="num">Nb RDV</th><th class="num">CPL</th><th class="num">Tx conv</th><th class="num">Signat.</th><th class="num">CPA</th></tr></thead>
+<tbody id="tbl-cat-business"></tbody></table></div>
+<div class="section-h">📰 Vue par média</div>
+<div class="toolbar"><span class="lbl">Source :</span><div class="tg" id="src-tg"></div></div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Conso <span class="pill" style="background:#E6F1FB;color:#0C447C">Pipeline</span></div><div class="pipe-meta" id="med-conso-tot"></div></div>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Média</th><th class="num">Coût</th><th class="num">Prise contact</th><th class="num">Tx RDV</th><th class="num">Nb RDV</th><th class="num">CPL</th><th class="num">Tx conv</th><th class="num">Signat.</th><th class="num">CPA</th></tr></thead>
+<tbody id="tbl-med-conso"></tbody></table></div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Business <span class="pill" style="background:#FAECE7;color:#712B13">Pipeline</span></div><div class="pipe-meta" id="med-business-tot"></div></div>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>Média</th><th class="num">Coût</th><th class="num">Prise contact</th><th class="num">Tx RDV</th><th class="num">Nb RDV</th><th class="num">CPL</th><th class="num">Tx conv</th><th class="num">Signat.</th><th class="num">CPA</th></tr></thead>
+<tbody id="tbl-med-business"></tbody></table></div>
+<div class="section-h">📈 Évolution mensuelle CPL / CPA / Tx conversion</div>
+<div class="def" style="margin-bottom:0.8rem">Comparaison <b>Sales</b>, <b>Marketing</b>, <b>SDR</b> et <b>Mix Mkt/SDR</b> basée sur <b>les coûts fully loaded</b>. Mois sans signature → CPA absent (—).</div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Conso <span class="pill" style="background:#E6F1FB;color:#0C447C">Pipeline</span></div></div>
+<div class="chart-grid">
+  <div class="chart-card"><div class="chart-title">CPL fully loaded (€/RDV)</div><svg class="chart-svg" id="ch-conso-cpl" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-conso-cpl"></div></div>
+  <div class="chart-card"><div class="chart-title">CAC fully loaded (€/signature)</div><svg class="chart-svg" id="ch-conso-cpa" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-conso-cpa"></div></div>
+  <div class="chart-card"><div class="chart-title">Tx conversion (%)</div><svg class="chart-svg" id="ch-conso-conv" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-conso-conv"></div></div>
+</div>
+<div class="pipe-h"><div class="pipe-t">NEW_SALES Business <span class="pill" style="background:#FAECE7;color:#712B13">Pipeline</span></div></div>
+<div class="chart-grid">
+  <div class="chart-card"><div class="chart-title">CPL fully loaded (€/RDV)</div><svg class="chart-svg" id="ch-business-cpl" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-business-cpl"></div></div>
+  <div class="chart-card"><div class="chart-title">CAC fully loaded (€/signature)</div><svg class="chart-svg" id="ch-business-cpa" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-business-cpa"></div></div>
+  <div class="chart-card"><div class="chart-title">Tx conversion (%)</div><svg class="chart-svg" id="ch-business-conv" viewBox="0 0 400 160"></svg><div class="chart-leg" id="lg-business-conv"></div></div>
+</div>
+</div>
+<script>
+const CAT={"months":["2025-10","2025-11","2025-12","2026-01","2026-02","2026-03"],"conso":{"all":{"rows":[{"total":86309,"rdv":4528,"won":654,"tx_conv":14.44,"tx_rdv":5.25,"name":"Sales"},{"total":3145,"rdv":3140,"won":245,"tx_conv":7.8,"tx_rdv":99.84,"name":"Marketing"},{"total":640,"rdv":538,"won":61,"tx_conv":11.34,"tx_rdv":84.06,"name":"SDR"},{"total":221,"rdv":216,"won":18,"tx_conv":8.33,"tx_rdv":97.74,"name":"Mix Mkt/SDR"},{"total":165,"rdv":52,"won":21,"tx_conv":40.38,"tx_rdv":31.52,"name":"Interne"},{"total":12,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":41.67,"name":"Recommandation"},{"total":2,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Evenements"},{"total":1,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"Ads"}],"total":{"total":90495,"rdv":8480,"won":1000,"tx_conv":11.79,"tx_rdv":9.37,"name":"TOTAL"}},"2025-10":{"rows":[{"total":19996,"rdv":723,"won":174,"tx_conv":24.07,"tx_rdv":3.62,"name":"Sales"},{"total":642,"rdv":641,"won":52,"tx_conv":8.11,"tx_rdv":99.84,"name":"Marketing"},{"total":90,"rdv":89,"won":17,"tx_conv":19.1,"tx_rdv":98.89,"name":"SDR"},{"total":47,"rdv":47,"won":1,"tx_conv":2.13,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":35,"rdv":10,"won":6,"tx_conv":60.0,"tx_rdv":28.57,"name":"Interne"},{"total":1,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"Recommandation"},{"total":1,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"Ads"}],"total":{"total":20812,"rdv":1512,"won":250,"tx_conv":16.53,"tx_rdv":7.27,"name":"TOTAL"}},"2025-11":{"rows":[{"total":12638,"rdv":522,"won":110,"tx_conv":21.07,"tx_rdv":4.13,"name":"Sales"},{"total":456,"rdv":454,"won":28,"tx_conv":6.17,"tx_rdv":99.56,"name":"Marketing"},{"total":94,"rdv":81,"won":8,"tx_conv":9.88,"tx_rdv":86.17,"name":"SDR"},{"total":42,"rdv":41,"won":2,"tx_conv":4.88,"tx_rdv":97.62,"name":"Mix Mkt/SDR"},{"total":15,"rdv":7,"won":7,"tx_conv":100.0,"tx_rdv":46.67,"name":"Interne"},{"total":3,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":66.67,"name":"Recommandation"},{"total":2,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Evenements"}],"total":{"total":13250,"rdv":1107,"won":155,"tx_conv":14.0,"tx_rdv":8.35,"name":"TOTAL"}},"2025-12":{"rows":[{"total":11859,"rdv":470,"won":70,"tx_conv":14.89,"tx_rdv":3.96,"name":"Sales"},{"total":454,"rdv":454,"won":38,"tx_conv":8.37,"tx_rdv":100.0,"name":"Marketing"},{"total":95,"rdv":74,"won":9,"tx_conv":12.16,"tx_rdv":77.89,"name":"SDR"},{"total":57,"rdv":56,"won":8,"tx_conv":14.29,"tx_rdv":98.25,"name":"Mix Mkt/SDR"},{"total":9,"rdv":1,"won":1,"tx_conv":100.0,"tx_rdv":11.11,"name":"Interne"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Recommandation"}],"total":{"total":12477,"rdv":1055,"won":126,"tx_conv":11.94,"tx_rdv":8.46,"name":"TOTAL"}},"2026-01":{"rows":[{"total":9780,"rdv":617,"won":92,"tx_conv":14.91,"tx_rdv":6.31,"name":"Sales"},{"total":608,"rdv":607,"won":51,"tx_conv":8.4,"tx_rdv":99.84,"name":"Marketing"},{"total":117,"rdv":78,"won":9,"tx_conv":11.54,"tx_rdv":66.67,"name":"SDR"},{"total":37,"rdv":15,"won":2,"tx_conv":13.33,"tx_rdv":40.54,"name":"Interne"},{"total":37,"rdv":34,"won":4,"tx_conv":11.76,"tx_rdv":91.89,"name":"Mix Mkt/SDR"},{"total":2,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Recommandation"}],"total":{"total":10581,"rdv":1351,"won":158,"tx_conv":11.7,"tx_rdv":12.77,"name":"TOTAL"}},"2026-02":{"rows":[{"total":14222,"rdv":973,"won":98,"tx_conv":10.07,"tx_rdv":6.84,"name":"Sales"},{"total":479,"rdv":479,"won":32,"tx_conv":6.68,"tx_rdv":100.0,"name":"Marketing"},{"total":115,"rdv":95,"won":12,"tx_conv":12.63,"tx_rdv":82.61,"name":"SDR"},{"total":34,"rdv":8,"won":3,"tx_conv":37.5,"tx_rdv":23.53,"name":"Interne"},{"total":14,"rdv":14,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":2,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":100.0,"name":"Recommandation"}],"total":{"total":14866,"rdv":1571,"won":146,"tx_conv":9.29,"tx_rdv":10.57,"name":"TOTAL"}},"2026-03":{"rows":[{"total":17814,"rdv":1223,"won":110,"tx_conv":8.99,"tx_rdv":6.87,"name":"Sales"},{"total":506,"rdv":505,"won":44,"tx_conv":8.71,"tx_rdv":99.8,"name":"Marketing"},{"total":129,"rdv":121,"won":6,"tx_conv":4.96,"tx_rdv":93.8,"name":"SDR"},{"total":35,"rdv":11,"won":2,"tx_conv":18.18,"tx_rdv":31.43,"name":"Interne"},{"total":24,"rdv":24,"won":3,"tx_conv":12.5,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":1,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Recommandation"}],"total":{"total":18509,"rdv":1884,"won":165,"tx_conv":8.76,"tx_rdv":10.18,"name":"TOTAL"}}},"business":{"all":{"rows":[{"total":34876,"rdv":4438,"won":147,"tx_conv":3.31,"tx_rdv":12.73,"name":"Sales"},{"total":3392,"rdv":3371,"won":126,"tx_conv":3.74,"tx_rdv":99.38,"name":"Marketing"},{"total":1375,"rdv":1005,"won":47,"tx_conv":4.68,"tx_rdv":73.09,"name":"SDR"},{"total":364,"rdv":363,"won":25,"tx_conv":6.89,"tx_rdv":99.73,"name":"Mix Mkt/SDR"},{"total":207,"rdv":24,"won":1,"tx_conv":4.17,"tx_rdv":11.59,"name":"Outils"},{"total":31,"rdv":12,"won":1,"tx_conv":8.33,"tx_rdv":38.71,"name":"Interne"},{"total":16,"rdv":5,"won":0,"tx_conv":0.0,"tx_rdv":31.25,"name":"Recommandation"},{"total":5,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Evenements"}],"total":{"total":40266,"rdv":9218,"won":347,"tx_conv":3.76,"tx_rdv":22.89,"name":"TOTAL"}},"2025-10":{"rows":[{"total":5164,"rdv":717,"won":19,"tx_conv":2.65,"tx_rdv":13.88,"name":"Sales"},{"total":385,"rdv":189,"won":8,"tx_conv":4.23,"tx_rdv":49.09,"name":"SDR"},{"total":385,"rdv":384,"won":24,"tx_conv":6.25,"tx_rdv":99.74,"name":"Marketing"},{"total":114,"rdv":6,"won":1,"tx_conv":16.67,"tx_rdv":5.26,"name":"Outils"},{"total":56,"rdv":56,"won":1,"tx_conv":1.79,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":4,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":25.0,"name":"Recommandation"},{"total":2,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Evenements"}],"total":{"total":6110,"rdv":1353,"won":53,"tx_conv":3.92,"tx_rdv":22.14,"name":"TOTAL"}},"2025-11":{"rows":[{"total":4268,"rdv":559,"won":17,"tx_conv":3.04,"tx_rdv":13.1,"name":"Sales"},{"total":634,"rdv":629,"won":21,"tx_conv":3.34,"tx_rdv":99.21,"name":"Marketing"},{"total":145,"rdv":114,"won":8,"tx_conv":7.02,"tx_rdv":78.62,"name":"SDR"},{"total":73,"rdv":73,"won":7,"tx_conv":9.59,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":7,"rdv":6,"won":0,"tx_conv":0.0,"tx_rdv":85.71,"name":"Outils"},{"total":3,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":33.33,"name":"Recommandation"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Evenements"},{"total":1,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"Interne"}],"total":{"total":5134,"rdv":1383,"won":53,"tx_conv":3.83,"tx_rdv":26.94,"name":"TOTAL"}},"2025-12":{"rows":[{"total":5585,"rdv":709,"won":19,"tx_conv":2.68,"tx_rdv":12.69,"name":"Sales"},{"total":608,"rdv":606,"won":17,"tx_conv":2.81,"tx_rdv":99.67,"name":"Marketing"},{"total":246,"rdv":183,"won":4,"tx_conv":2.19,"tx_rdv":74.39,"name":"SDR"},{"total":69,"rdv":69,"won":7,"tx_conv":10.14,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":2,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":50.0,"name":"Interne"},{"total":1,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Recommandation"}],"total":{"total":6511,"rdv":1568,"won":47,"tx_conv":3.0,"tx_rdv":24.08,"name":"TOTAL"}},"2026-01":{"rows":[{"total":6621,"rdv":797,"won":31,"tx_conv":3.89,"tx_rdv":12.04,"name":"Sales"},{"total":727,"rdv":717,"won":31,"tx_conv":4.32,"tx_rdv":98.62,"name":"Marketing"},{"total":150,"rdv":130,"won":12,"tx_conv":9.23,"tx_rdv":86.67,"name":"SDR"},{"total":62,"rdv":61,"won":5,"tx_conv":8.2,"tx_rdv":98.39,"name":"Mix Mkt/SDR"},{"total":32,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":3.12,"name":"Outils"},{"total":14,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":14.29,"name":"Interne"},{"total":3,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":33.33,"name":"Recommandation"}],"total":{"total":7609,"rdv":1709,"won":79,"tx_conv":4.62,"tx_rdv":22.46,"name":"TOTAL"}},"2026-02":{"rows":[{"total":6402,"rdv":794,"won":26,"tx_conv":3.27,"tx_rdv":12.4,"name":"Sales"},{"total":537,"rdv":535,"won":13,"tx_conv":2.43,"tx_rdv":99.63,"name":"Marketing"},{"total":184,"rdv":147,"won":9,"tx_conv":6.12,"tx_rdv":79.89,"name":"SDR"},{"total":47,"rdv":47,"won":2,"tx_conv":4.26,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":46,"rdv":11,"won":0,"tx_conv":0.0,"tx_rdv":23.91,"name":"Outils"},{"total":4,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":75.0,"name":"Interne"},{"total":2,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":50.0,"name":"Recommandation"}],"total":{"total":7222,"rdv":1538,"won":50,"tx_conv":3.25,"tx_rdv":21.3,"name":"TOTAL"}},"2026-03":{"rows":[{"total":6836,"rdv":862,"won":35,"tx_conv":4.06,"tx_rdv":12.61,"name":"Sales"},{"total":501,"rdv":500,"won":20,"tx_conv":4.0,"tx_rdv":99.8,"name":"Marketing"},{"total":265,"rdv":242,"won":6,"tx_conv":2.48,"tx_rdv":91.32,"name":"SDR"},{"total":57,"rdv":57,"won":3,"tx_conv":5.26,"tx_rdv":100.0,"name":"Mix Mkt/SDR"},{"total":10,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":50.0,"name":"Interne"},{"total":8,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"Outils"},{"total":3,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":33.33,"name":"Recommandation"}],"total":{"total":7680,"rdv":1667,"won":65,"tx_conv":3.9,"tx_rdv":21.71,"name":"TOTAL"}}}};
+const SDR_COSTS={"conso":{"2025-10":6691,"2025-11":8872,"2025-12":6841,"2026-01":6912,"2026-02":7167,"2026-03":7832,"all":44315},"business":{"2025-10":13382,"2025-11":17743,"2025-12":13683,"2026-01":13824,"2026-02":14333,"2026-03":15664,"all":88629}};
+const HOURS_BY_CAT={"conso":{"Sales":{"2025-10":766.3,"2025-11":551.5,"2025-12":488.8,"2026-01":663.7,"2026-02":993.2,"2026-03":1236.0,"all":4699.5},"SDR":{"2025-10":71.1,"2025-11":70.8,"2025-12":69.9,"2026-01":74.9,"2026-02":94.1,"2026-03":113.5,"all":494.3},"Mix Mkt/SDR":{"2025-10":31.1,"2025-11":33.8,"2025-12":55.3,"2026-01":33.5,"2026-02":12.2,"2026-03":25.6,"all":191.5},"Marketing":{"2025-10":481.4,"2025-11":379.2,"2025-12":411.0,"2026-01":584.1,"2026-02":435.9,"2026-03":494.8,"all":2786.4},"Interne":{"2025-10":11.7,"2025-11":9.3,"2025-12":1.3,"2026-01":14.1,"2026-02":10.0,"2026-03":10.2,"all":56.6},"Recommandation":{"2025-10":1.2,"2025-11":1.2,"2025-12":0.0,"2026-01":0.0,"2026-02":2.5,"2026-03":0.0,"all":4.9},"Ads":{"2025-10":1.2,"2025-11":0.0,"2025-12":0.0,"2026-01":0.0,"2026-02":0.0,"2026-03":0.0,"all":1.2},"Evenements":{"2025-10":0.0,"2025-11":0.0,"2025-12":0.0,"2026-01":0.0,"2026-02":0.0,"2026-03":0.0,"all":0.0}},"business":{"Sales":{"2025-10":366.7,"2025-11":285.9,"2025-12":485.1,"2026-01":609.5,"2026-02":751.4,"2026-03":777.7,"all":3276.3},"SDR":{"2025-10":192.3,"2025-11":123.9,"2025-12":194.7,"2026-01":152.3,"2026-02":170.8,"2026-03":283.2,"all":1117.2},"Marketing":{"2025-10":457.7,"2025-11":742.8,"2025-12":714.9,"2026-01":820.8,"2026-02":615.8,"2026-03":611.6,"all":3963.6},"Recommandation":{"2025-10":1.5,"2025-11":0.8,"2025-12":0.0,"2026-01":1.5,"2026-02":0.8,"2026-03":0.8,"all":5.4},"Mix Mkt/SDR":{"2025-10":64.1,"2025-11":83.1,"2025-12":87.8,"2026-01":74.5,"2026-02":52.4,"2026-03":65.0,"all":426.9},"Evenements":{"2025-10":0.0,"2025-11":0.0,"2025-12":0.0,"2026-01":0.0,"2026-02":0.0,"2026-03":0.0,"all":0.0},"Outils":{"2025-10":5.4,"2025-11":0.0,"2025-12":0.0,"2026-01":0.8,"2026-02":11.2,"2026-03":0.0,"all":17.4},"Interne":{"2025-10":0.0,"2025-11":1.5,"2025-12":0.8,"2026-01":0.0,"2026-02":4.5,"2026-03":6.2,"all":13.0}}};
+const CAPACITY={"conso":{"2025-10":3371,"2025-11":3237,"2025-12":3085,"2026-01":2799,"2026-02":2951,"2026-03":2986,"all":18429},"business":{"2025-10":1837,"2025-11":2175,"2025-12":2513,"2026-01":2682,"2026-02":2665,"2026-03":2362,"all":14234}};
+const SALES_COSTS={"conso":{"2025-10":150293,"2025-11":134101,"2025-12":123681,"2026-01":119655,"2026-02":121342,"2026-03":140738,"all":789810},"business":{"2025-10":64532,"2025-11":78086,"2025-12":70787,"2026-01":99827,"2026-02":71470,"2026-03":94651,"all":479353}};
+const MIX_COSTS={"conso":{"2025-10":2137,"2025-11":2717,"2025-12":3234,"2026-01":1810,"2026-02":678,"2026-03":1033,"all":11609},"business":{"2025-10":2791,"2025-11":6330,"2025-12":3232,"2026-01":3733,"2026-02":2793,"2026-03":2528,"all":21407}};
+const COSTS={"conso":{"2025-10":10089,"2025-11":10450,"2025-12":10470,"2026-01":10834,"2026-02":10261,"2026-03":10783,"all":62887},"business":{"2025-10":11094,"2025-11":11183,"2025-12":11466,"2026-01":11515,"2026-02":11419,"2026-03":11989,"all":68666}};
+const MKT_C={"conso":{"2025-10":16839,"2025-11":16153,"2025-12":20668,"2026-01":17640,"2026-02":18032,"2026-03":21187,"all":110519},"business":{"2025-10":15394,"2025-11":16447,"2025-12":20397,"2026-01":20170,"2026-02":16809,"2026-03":16818,"all":106035}};
+const SERIES={"months":["2025-10","2025-11","2025-12","2026-01","2026-02","2026-03"],"conso":{"Marketing":[{"rdv":641,"won":52,"cpl":49,"cpa":607,"tx_conv":8.11},{"rdv":454,"won":28,"cpl":58,"cpa":934,"tx_conv":6.17},{"rdv":454,"won":38,"cpl":59,"cpa":709,"tx_conv":8.37},{"rdv":607,"won":51,"cpl":59,"cpa":702,"tx_conv":8.4},{"rdv":479,"won":32,"cpl":59,"cpa":881,"tx_conv":6.68},{"rdv":505,"won":44,"cpl":68,"cpa":775,"tx_conv":8.71}],"SDR":[{"rdv":89,"won":17,"cpl":111,"cpa":580,"tx_conv":19.1},{"rdv":81,"won":8,"cpl":146,"cpa":1476,"tx_conv":9.88},{"rdv":74,"won":9,"cpl":130,"cpa":1071,"tx_conv":12.16},{"rdv":78,"won":9,"cpl":130,"cpa":1124,"tx_conv":11.54},{"rdv":95,"won":12,"cpl":116,"cpa":920,"tx_conv":12.63},{"rdv":121,"won":6,"cpl":109,"cpa":2197,"tx_conv":4.96}],"Mix":[{"rdv":47,"won":1,"cpl":75,"cpa":3523,"tx_conv":2.13},{"rdv":41,"won":2,"cpl":100,"cpa":2059,"tx_conv":4.88},{"rdv":56,"won":8,"cpl":97,"cpa":681,"tx_conv":14.29},{"rdv":34,"won":4,"cpl":95,"cpa":810,"tx_conv":11.76},{"rdv":14,"won":0,"cpl":84,"cpa":null,"tx_conv":0.0},{"rdv":24,"won":3,"cpl":93,"cpa":747,"tx_conv":12.5}],"Sales":[{"rdv":723,"won":174,"cpl":171,"cpa":711,"tx_conv":24.07},{"rdv":522,"won":110,"cpl":218,"cpa":1033,"tx_conv":21.07},{"rdv":470,"won":70,"cpl":217,"cpa":1459,"tx_conv":14.89},{"rdv":617,"won":92,"cpl":145,"cpa":972,"tx_conv":14.91},{"rdv":973,"won":98,"cpl":101,"cpa":1005,"tx_conv":10.07},{"rdv":1223,"won":110,"cpl":90,"cpa":1003,"tx_conv":8.99}]},"business":{"Marketing":[{"rdv":384,"won":24,"cpl":71,"cpa":1132,"tx_conv":6.25},{"rdv":629,"won":21,"cpl":60,"cpa":1802,"tx_conv":3.34},{"rdv":606,"won":17,"cpl":52,"cpa":1859,"tx_conv":2.81},{"rdv":717,"won":31,"cpl":59,"cpa":1357,"tx_conv":4.32},{"rdv":535,"won":13,"cpl":52,"cpa":2149,"tx_conv":2.43},{"rdv":500,"won":20,"cpl":73,"cpa":1825,"tx_conv":4.0}],"SDR":[{"rdv":189,"won":8,"cpl":107,"cpa":2517,"tx_conv":4.23},{"rdv":114,"won":8,"cpl":195,"cpa":2774,"tx_conv":7.02},{"rdv":183,"won":4,"cpl":105,"cpa":4792,"tx_conv":2.19},{"rdv":130,"won":12,"cpl":150,"cpa":1624,"tx_conv":9.23},{"rdv":147,"won":9,"cpl":129,"cpa":2102,"tx_conv":6.12},{"rdv":242,"won":6,"cpl":112,"cpa":4502,"tx_conv":2.48}],"Mix":[{"rdv":56,"won":1,"cpl":90,"cpa":5042,"tx_conv":1.79},{"rdv":73,"won":7,"cpl":128,"cpa":1330,"tx_conv":9.59},{"rdv":69,"won":7,"cpl":83,"cpa":815,"tx_conv":10.14},{"rdv":61,"won":5,"cpl":107,"cpa":1301,"tx_conv":8.2},{"rdv":47,"won":2,"cpl":89,"cpa":2099,"tx_conv":4.26},{"rdv":57,"won":3,"cpl":90,"cpa":1711,"tx_conv":5.26}],"Sales":[{"rdv":717,"won":19,"cpl":55,"cpa":2064,"tx_conv":2.65},{"rdv":559,"won":17,"cpl":79,"cpa":2583,"tx_conv":3.04},{"rdv":709,"won":19,"cpl":60,"cpa":2246,"tx_conv":2.68},{"rdv":797,"won":31,"cpl":76,"cpa":1960,"tx_conv":3.89},{"rdv":794,"won":26,"cpl":61,"cpa":1866,"tx_conv":3.27},{"rdv":862,"won":35,"cpl":65,"cpa":1597,"tx_conv":4.06}]}};
+const MED={"months":["2025-10","2025-11","2025-12","2026-01","2026-02","2026-03"],"conso":{"all":{"sources":["Ads","Evenements","Interne","Marketing","Mix Mkt/SDR","Recommandation","SDR","Sales"],"by_source":{"all":{"rows":[{"total":19757,"rdv":1672,"won":262,"tx_conv":15.67,"tx_rdv":8.46,"name":"MADAME FIGARO"},{"total":17037,"rdv":2647,"won":320,"tx_conv":12.09,"tx_rdv":15.54,"name":"MARIE CLAIRE"},{"total":14085,"rdv":667,"won":101,"tx_conv":15.14,"tx_rdv":4.74,"name":"FORBES_AI"},{"total":10839,"rdv":836,"won":61,"tx_conv":7.3,"tx_rdv":7.71,"name":"TIME"},{"total":6985,"rdv":719,"won":51,"tx_conv":7.09,"tx_rdv":10.29,"name":"TF1 INFO"},{"total":4904,"rdv":893,"won":46,"tx_conv":5.15,"tx_rdv":18.21,"name":"BFM_TRAJECTOIRE"},{"total":4672,"rdv":175,"won":24,"tx_conv":13.71,"tx_rdv":3.75,"name":"L'EXPRESS"},{"total":2990,"rdv":158,"won":30,"tx_conv":18.99,"tx_rdv":5.28,"name":"MARIE CLAIRE MAISON"},{"total":2189,"rdv":192,"won":26,"tx_conv":13.54,"tx_rdv":8.77,"name":"LE FIGARO"},{"total":1022,"rdv":62,"won":9,"tx_conv":14.52,"tx_rdv":6.07,"name":"LE FIGARO_A"},{"total":806,"rdv":29,"won":2,"tx_conv":6.9,"tx_rdv":3.6,"name":"GRAZIA"},{"total":693,"rdv":57,"won":4,"tx_conv":7.02,"tx_rdv":8.23,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":595,"rdv":19,"won":3,"tx_conv":15.79,"tx_rdv":3.19,"name":"AUTO PLUS"},{"total":570,"rdv":44,"won":0,"tx_conv":0.0,"tx_rdv":7.72,"name":"ONIRIQ"},{"total":413,"rdv":42,"won":4,"tx_conv":9.52,"tx_rdv":10.17,"name":"MAGIC MAMAN"},{"total":370,"rdv":24,"won":4,"tx_conv":16.67,"tx_rdv":6.49,"name":"AUTO MOTO"},{"total":293,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":1.71,"name":"FORBES_PRINT"},{"total":260,"rdv":13,"won":2,"tx_conv":15.38,"tx_rdv":5.0,"name":"BFM_TATD"},{"total":235,"rdv":9,"won":1,"tx_conv":11.11,"tx_rdv":3.83,"name":"ELLE BE"},{"total":213,"rdv":20,"won":3,"tx_conv":15.0,"tx_rdv":9.39,"name":"MASTERCLASS"},{"total":182,"rdv":17,"won":5,"tx_conv":29.41,"tx_rdv":9.34,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":175,"rdv":36,"won":8,"tx_conv":22.22,"tx_rdv":20.57,"name":"FORBES BE"},{"total":168,"rdv":14,"won":4,"tx_conv":28.57,"tx_rdv":8.33,"name":"TOP SANTE"},{"total":110,"rdv":17,"won":1,"tx_conv":5.88,"tx_rdv":15.45,"name":"RDV RP sur mesure"},{"total":101,"rdv":11,"won":5,"tx_conv":45.45,"tx_rdv":10.89,"name":"LE POINT - ARTICLE"},{"total":79,"rdv":17,"won":4,"tx_conv":23.53,"tx_rdv":21.52,"name":"CANNES AND CONNECT"},{"total":67,"rdv":3,"won":3,"tx_conv":100.0,"tx_rdv":4.48,"name":"FORBES_ALT"},{"total":47,"rdv":4,"won":2,"tx_conv":50.0,"tx_rdv":8.51,"name":"COSMOPOLITAN"},{"total":44,"rdv":25,"won":8,"tx_conv":32.0,"tx_rdv":56.82,"name":"PLAN MEDIA"},{"total":44,"rdv":4,"won":1,"tx_conv":25.0,"tx_rdv":9.09,"name":"MAISON TRAVAUX"},{"total":33,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":9.09,"name":"WHO'S WHO LEADERS"},{"total":20,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":20.0,"name":"WHO'S WHO DECIDEURS"},{"total":13,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":23.08,"name":"MARIE CLAIRE BE"}],"total":{"total":90490,"rdv":8480,"won":1000,"tx_conv":11.79,"tx_rdv":9.37,"name":"TOTAL"}},"Marketing":{"rows":[{"total":1452,"rdv":1449,"won":138,"tx_conv":9.52,"tx_rdv":99.79,"name":"MARIE CLAIRE"},{"total":609,"rdv":609,"won":27,"tx_conv":4.43,"tx_rdv":100.0,"name":"BFM_TRAJECTOIRE"},{"total":495,"rdv":494,"won":49,"tx_conv":9.92,"tx_rdv":99.8,"name":"MADAME FIGARO"},{"total":215,"rdv":214,"won":9,"tx_conv":4.21,"tx_rdv":99.53,"name":"TF1 INFO"},{"total":185,"rdv":185,"won":8,"tx_conv":4.32,"tx_rdv":100.0,"name":"FORBES_AI"},{"total":69,"rdv":69,"won":4,"tx_conv":5.8,"tx_rdv":100.0,"name":"TIME"},{"total":65,"rdv":65,"won":6,"tx_conv":9.23,"tx_rdv":100.0,"name":"LE FIGARO"},{"total":24,"rdv":24,"won":1,"tx_conv":4.17,"tx_rdv":100.0,"name":"L'EXPRESS"}],"total":{"total":3145,"rdv":3140,"won":245,"tx_conv":7.8,"tx_rdv":99.84,"name":"TOTAL"}},"SDR":{"rows":[{"total":245,"rdv":197,"won":13,"tx_conv":6.6,"tx_rdv":80.41,"name":"TIME"},{"total":96,"rdv":82,"won":8,"tx_conv":9.76,"tx_rdv":85.42,"name":"FORBES_AI"},{"total":74,"rdv":65,"won":9,"tx_conv":13.85,"tx_rdv":87.84,"name":"MARIE CLAIRE"},{"total":69,"rdv":54,"won":14,"tx_conv":25.93,"tx_rdv":78.26,"name":"MADAME FIGARO"},{"total":58,"rdv":49,"won":4,"tx_conv":8.16,"tx_rdv":84.48,"name":"TF1 INFO"},{"total":25,"rdv":22,"won":4,"tx_conv":18.18,"tx_rdv":88.0,"name":"FORBES BE"},{"total":22,"rdv":20,"won":0,"tx_conv":0.0,"tx_rdv":90.91,"name":"BFM_TRAJECTOIRE"},{"total":16,"rdv":16,"won":3,"tx_conv":18.75,"tx_rdv":100.0,"name":"L'EXPRESS"},{"total":10,"rdv":9,"won":1,"tx_conv":11.11,"tx_rdv":90.0,"name":"CANNES AND CONNECT"}],"total":{"total":640,"rdv":538,"won":61,"tx_conv":11.34,"tx_rdv":84.06,"name":"TOTAL"}},"Mix Mkt/SDR":{"rows":[{"total":80,"rdv":79,"won":6,"tx_conv":7.59,"tx_rdv":98.75,"name":"MARIE CLAIRE"},{"total":34,"rdv":33,"won":3,"tx_conv":9.09,"tx_rdv":97.06,"name":"MADAME FIGARO"},{"total":25,"rdv":25,"won":2,"tx_conv":8.0,"tx_rdv":100.0,"name":"FORBES_AI"},{"total":25,"rdv":24,"won":1,"tx_conv":4.17,"tx_rdv":96.0,"name":"BFM_TRAJECTOIRE"},{"total":19,"rdv":18,"won":1,"tx_conv":5.56,"tx_rdv":94.74,"name":"TIME"},{"total":16,"rdv":15,"won":1,"tx_conv":6.67,"tx_rdv":93.75,"name":"TF1 INFO"}],"total":{"total":221,"rdv":216,"won":18,"tx_conv":8.33,"tx_rdv":97.74,"name":"TOTAL"}},"Sales":{"rows":[{"total":19126,"rdv":1084,"won":192,"tx_conv":17.71,"tx_rdv":5.67,"name":"MADAME FIGARO"},{"total":15395,"rdv":1040,"won":161,"tx_conv":15.48,"tx_rdv":6.76,"name":"MARIE CLAIRE"},{"total":13763,"rdv":370,"won":81,"tx_conv":21.89,"tx_rdv":2.69,"name":"FORBES_AI"},{"total":10492,"rdv":548,"won":43,"tx_conv":7.85,"tx_rdv":5.22,"name":"TIME"},{"total":6678,"rdv":435,"won":36,"tx_conv":8.28,"tx_rdv":6.51,"name":"TF1 INFO"},{"total":4626,"rdv":132,"won":20,"tx_conv":15.15,"tx_rdv":2.85,"name":"L'EXPRESS"},{"total":4242,"rdv":240,"won":18,"tx_conv":7.5,"tx_rdv":5.66,"name":"BFM_TRAJECTOIRE"},{"total":2979,"rdv":149,"won":28,"tx_conv":18.79,"tx_rdv":5.0,"name":"MARIE CLAIRE MAISON"},{"total":2101,"rdv":111,"won":18,"tx_conv":16.22,"tx_rdv":5.28,"name":"LE FIGARO"},{"total":1020,"rdv":60,"won":8,"tx_conv":13.33,"tx_rdv":5.88,"name":"LE FIGARO_A"},{"total":803,"rdv":26,"won":0,"tx_conv":0.0,"tx_rdv":3.24,"name":"GRAZIA"},{"total":677,"rdv":41,"won":2,"tx_conv":4.88,"tx_rdv":6.06,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":593,"rdv":18,"won":3,"tx_conv":16.67,"tx_rdv":3.04,"name":"AUTO PLUS"},{"total":570,"rdv":44,"won":0,"tx_conv":0.0,"tx_rdv":7.72,"name":"ONIRIQ"},{"total":411,"rdv":42,"won":4,"tx_conv":9.52,"tx_rdv":10.22,"name":"MAGIC MAMAN"},{"total":370,"rdv":24,"won":4,"tx_conv":16.67,"tx_rdv":6.49,"name":"AUTO MOTO"},{"total":207,"rdv":14,"won":2,"tx_conv":14.29,"tx_rdv":6.76,"name":"MASTERCLASS"},{"total":176,"rdv":13,"won":3,"tx_conv":23.08,"tx_rdv":7.39,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":163,"rdv":14,"won":4,"tx_conv":28.57,"tx_rdv":8.59,"name":"TOP SANTE"},{"total":148,"rdv":12,"won":4,"tx_conv":33.33,"tx_rdv":8.11,"name":"FORBES BE"},{"total":107,"rdv":15,"won":1,"tx_conv":6.67,"tx_rdv":14.02,"name":"RDV RP sur mesure"},{"total":100,"rdv":10,"won":5,"tx_conv":50.0,"tx_rdv":10.0,"name":"LE POINT - ARTICLE"},{"total":69,"rdv":8,"won":3,"tx_conv":37.5,"tx_rdv":11.59,"name":"CANNES AND CONNECT"},{"total":67,"rdv":3,"won":3,"tx_conv":100.0,"tx_rdv":4.48,"name":"FORBES_ALT"},{"total":47,"rdv":4,"won":2,"tx_conv":50.0,"tx_rdv":8.51,"name":"COSMOPOLITAN"},{"total":43,"rdv":3,"won":1,"tx_conv":33.33,"tx_rdv":6.98,"name":"MAISON TRAVAUX"},{"total":32,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":6.25,"name":"WHO'S WHO LEADERS"},{"total":21,"rdv":7,"won":5,"tx_conv":71.43,"tx_rdv":33.33,"name":"PLAN MEDIA"},{"total":19,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":15.79,"name":"WHO'S WHO DECIDEURS"},{"total":12,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":16.67,"name":"MARIE CLAIRE BE"}],"total":{"total":86304,"rdv":4528,"won":654,"tx_conv":14.44,"tx_rdv":5.25,"name":"TOTAL"}},"Interne":{"rows":[{"total":34,"rdv":13,"won":6,"tx_conv":46.15,"tx_rdv":38.24,"name":"MARIE CLAIRE"},{"total":30,"rdv":7,"won":4,"tx_conv":57.14,"tx_rdv":23.33,"name":"MADAME FIGARO"},{"total":18,"rdv":6,"won":1,"tx_conv":16.67,"tx_rdv":33.33,"name":"TF1 INFO"},{"total":13,"rdv":4,"won":2,"tx_conv":50.0,"tx_rdv":30.77,"name":"FORBES_AI"},{"total":12,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":16.67,"name":"TIME"},{"total":11,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":36.36,"name":"LE FIGARO"}],"total":{"total":165,"rdv":52,"won":21,"tx_conv":40.38,"tx_rdv":31.52,"name":"TOTAL"}},"Recommandation":{"rows":[],"total":{"total":12,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":41.67,"name":"TOTAL"}}}},"2026-01":{"sources":["Interne","Marketing","Mix Mkt/SDR","Recommandation","SDR","Sales"],"by_source":{"all":{"rows":[{"total":2932,"rdv":320,"won":49,"tx_conv":15.31,"tx_rdv":10.91,"name":"MADAME FIGARO"},{"total":2082,"rdv":384,"won":49,"tx_conv":12.76,"tx_rdv":18.44,"name":"MARIE CLAIRE"},{"total":1862,"rdv":144,"won":10,"tx_conv":6.94,"tx_rdv":7.73,"name":"TIME"},{"total":944,"rdv":190,"won":8,"tx_conv":4.21,"tx_rdv":20.13,"name":"BFM_TRAJECTOIRE"},{"total":737,"rdv":123,"won":9,"tx_conv":7.32,"tx_rdv":16.69,"name":"TF1 INFO"},{"total":528,"rdv":48,"won":11,"tx_conv":22.92,"tx_rdv":9.09,"name":"LE FIGARO"},{"total":349,"rdv":22,"won":3,"tx_conv":13.64,"tx_rdv":6.3,"name":"FORBES_AI"},{"total":293,"rdv":14,"won":1,"tx_conv":7.14,"tx_rdv":4.78,"name":"MARIE CLAIRE MAISON"},{"total":206,"rdv":14,"won":2,"tx_conv":14.29,"tx_rdv":6.8,"name":"LE FIGARO_A"},{"total":121,"rdv":25,"won":2,"tx_conv":8.0,"tx_rdv":20.66,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":91,"rdv":11,"won":0,"tx_conv":0.0,"tx_rdv":12.09,"name":"MAGIC MAMAN"},{"total":83,"rdv":12,"won":5,"tx_conv":41.67,"tx_rdv":14.46,"name":"FORBES BE"},{"total":64,"rdv":10,"won":1,"tx_conv":10.0,"tx_rdv":15.62,"name":"MASTERCLASS"},{"total":52,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":5.77,"name":"AUTO PLUS"},{"total":41,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":2.44,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":38,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":10.53,"name":"ONIRIQ"},{"total":32,"rdv":6,"won":2,"tx_conv":33.33,"tx_rdv":18.75,"name":"GRAZIA"},{"total":28,"rdv":4,"won":1,"tx_conv":25.0,"tx_rdv":14.29,"name":"TOP SANTE"},{"total":21,"rdv":3,"won":1,"tx_conv":33.33,"tx_rdv":14.29,"name":"RDV RP sur mesure"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"WHO'S WHO DECIDEURS"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"ELLE BE"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"LE POINT - ARTICLE"},{"total":7,"rdv":1,"won":1,"tx_conv":100.0,"tx_rdv":14.29,"name":"BFM_TATD"},{"total":7,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"BFM_TATD_A"},{"total":5,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":20.0,"name":"MARIE CLAIRE BE"},{"total":4,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":25.0,"name":"WHO'S WHO LEADERS"},{"total":4,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":50.0,"name":"CANNES AND CONNECT"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"LE FIGARO_WEBINAR"}],"total":{"total":10579,"rdv":1351,"won":158,"tx_conv":11.7,"tx_rdv":12.77,"name":"TOTAL"}},"Marketing":{"rows":[{"total":234,"rdv":233,"won":25,"tx_conv":10.73,"tx_rdv":99.57,"name":"MARIE CLAIRE"},{"total":138,"rdv":138,"won":5,"tx_conv":3.62,"tx_rdv":100.0,"name":"BFM_TRAJECTOIRE"},{"total":128,"rdv":128,"won":11,"tx_conv":8.59,"tx_rdv":100.0,"name":"MADAME FIGARO"},{"total":49,"rdv":49,"won":2,"tx_conv":4.08,"tx_rdv":100.0,"name":"TF1 INFO"},{"total":26,"rdv":26,"won":2,"tx_conv":7.69,"tx_rdv":100.0,"name":"TIME"},{"total":17,"rdv":17,"won":4,"tx_conv":23.53,"tx_rdv":100.0,"name":"LE FIGARO"},{"total":12,"rdv":12,"won":1,"tx_conv":8.33,"tx_rdv":100.0,"name":"FORBES_AI"},{"total":3,"rdv":3,"won":1,"tx_conv":33.33,"tx_rdv":100.0,"name":"BFM _ PAROLES D'ENTREPRISES"}],"total":{"total":608,"rdv":607,"won":51,"tx_conv":8.4,"tx_rdv":99.84,"name":"TOTAL"}},"SDR":{"rows":[{"total":54,"rdv":33,"won":3,"tx_conv":9.09,"tx_rdv":61.11,"name":"TIME"},{"total":19,"rdv":13,"won":1,"tx_conv":7.69,"tx_rdv":68.42,"name":"TF1 INFO"},{"total":18,"rdv":9,"won":1,"tx_conv":11.11,"tx_rdv":50.0,"name":"MADAME FIGARO"},{"total":9,"rdv":6,"won":1,"tx_conv":16.67,"tx_rdv":66.67,"name":"MARIE CLAIRE"},{"total":4,"rdv":4,"won":2,"tx_conv":50.0,"tx_rdv":100.0,"name":"FORBES BE"},{"total":4,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"BFM_TRAJECTOIRE"}],"total":{"total":117,"rdv":78,"won":9,"tx_conv":11.54,"tx_rdv":66.67,"name":"TOTAL"}},"Mix Mkt/SDR":{"rows":[{"total":11,"rdv":11,"won":1,"tx_conv":9.09,"tx_rdv":100.0,"name":"MARIE CLAIRE"},{"total":7,"rdv":6,"won":1,"tx_conv":16.67,"tx_rdv":85.71,"name":"TIME"},{"total":6,"rdv":6,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"MADAME FIGARO"},{"total":4,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":75.0,"name":"BFM_TRAJECTOIRE"},{"total":3,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":66.67,"name":"TF1 INFO"}],"total":{"total":37,"rdv":34,"won":4,"tx_conv":11.76,"tx_rdv":91.89,"name":"TOTAL"}},"Sales":{"rows":[{"total":2775,"rdv":177,"won":37,"tx_conv":20.9,"tx_rdv":6.38,"name":"MADAME FIGARO"},{"total":1820,"rdv":130,"won":21,"tx_conv":16.15,"tx_rdv":7.14,"name":"MARIE CLAIRE"},{"total":1769,"rdv":78,"won":4,"tx_conv":5.13,"tx_rdv":4.41,"name":"TIME"},{"total":796,"rdv":45,"won":3,"tx_conv":6.67,"tx_rdv":5.65,"name":"BFM_TRAJECTOIRE"},{"total":657,"rdv":55,"won":6,"tx_conv":10.91,"tx_rdv":8.37,"name":"TF1 INFO"},{"total":507,"rdv":27,"won":7,"tx_conv":25.93,"tx_rdv":5.33,"name":"LE FIGARO"},{"total":334,"rdv":8,"won":2,"tx_conv":25.0,"tx_rdv":2.4,"name":"FORBES_AI"},{"total":292,"rdv":13,"won":1,"tx_conv":7.69,"tx_rdv":4.45,"name":"MARIE CLAIRE MAISON"},{"total":205,"rdv":13,"won":2,"tx_conv":15.38,"tx_rdv":6.34,"name":"LE FIGARO_A"},{"total":116,"rdv":20,"won":1,"tx_conv":5.0,"tx_rdv":17.24,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":89,"rdv":11,"won":0,"tx_conv":0.0,"tx_rdv":12.36,"name":"MAGIC MAMAN"},{"total":77,"rdv":6,"won":3,"tx_conv":50.0,"tx_rdv":7.79,"name":"FORBES BE"},{"total":63,"rdv":9,"won":1,"tx_conv":11.11,"tx_rdv":14.29,"name":"MASTERCLASS"},{"total":52,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":5.77,"name":"AUTO PLUS"},{"total":41,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":2.44,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":38,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":10.53,"name":"ONIRIQ"},{"total":30,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":13.33,"name":"GRAZIA"},{"total":28,"rdv":4,"won":1,"tx_conv":25.0,"tx_rdv":14.29,"name":"TOP SANTE"},{"total":20,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":10.0,"name":"RDV RP sur mesure"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"WHO'S WHO DECIDEURS"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"ELLE BE"},{"total":10,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":10.0,"name":"LE POINT - ARTICLE"},{"total":4,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"MARIE CLAIRE BE"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"WHO'S WHO LEADERS"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"LE FIGARO_WEBINAR"}],"total":{"total":9778,"rdv":617,"won":92,"tx_conv":14.91,"tx_rdv":6.31,"name":"TOTAL"}},"Interne":{"rows":[{"total":9,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":44.44,"name":"TF1 INFO"},{"total":8,"rdv":4,"won":1,"tx_conv":25.0,"tx_rdv":50.0,"name":"MARIE CLAIRE"},{"total":6,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":16.67,"name":"TIME"},{"total":5,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"MADAME FIGARO"}],"total":{"total":37,"rdv":15,"won":2,"tx_conv":13.33,"tx_rdv":40.54,"name":"TOTAL"}},"Recommandation":{"rows":[],"total":{"total":2,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"TOTAL"}}}},"business":{"all":{"sources":["Evenements","Interne","Marketing","Mix Mkt/SDR","Outils","Recommandation","SDR","Sales"],"by_source":{"all":{"rows":[{"total":18178,"rdv":5495,"won":186,"tx_conv":3.38,"tx_rdv":30.23,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":6378,"rdv":833,"won":34,"tx_conv":4.08,"tx_rdv":13.06,"name":"MASTERCLASS"},{"total":5976,"rdv":1251,"won":55,"tx_conv":4.4,"tx_rdv":20.93,"name":"BFM_TRAJECTOIRE"},{"total":4922,"rdv":621,"won":27,"tx_conv":4.35,"tx_rdv":12.62,"name":"WHO'S WHO DECIDEURS"},{"total":1734,"rdv":287,"won":8,"tx_conv":2.79,"tx_rdv":16.55,"name":"TIME"},{"total":1499,"rdv":368,"won":11,"tx_conv":2.99,"tx_rdv":24.55,"name":"WHO'S WHO LEADERS"},{"total":276,"rdv":115,"won":0,"tx_conv":0.0,"tx_rdv":41.67,"name":"BFM _FOCUS"},{"total":148,"rdv":11,"won":0,"tx_conv":0.0,"tx_rdv":7.43,"name":"TF1 INFO"},{"total":119,"rdv":6,"won":1,"tx_conv":16.67,"tx_rdv":5.04,"name":"MADAME FIGARO"},{"total":107,"rdv":15,"won":4,"tx_conv":26.67,"tx_rdv":14.02,"name":"MARIE CLAIRE"},{"total":88,"rdv":16,"won":0,"tx_conv":0.0,"tx_rdv":18.18,"name":"BFM_TATD"},{"total":80,"rdv":46,"won":5,"tx_conv":10.87,"tx_rdv":57.5,"name":"PLAN MEDIA"},{"total":75,"rdv":12,"won":2,"tx_conv":16.67,"tx_rdv":16.0,"name":"FORBES_AI"},{"total":32,"rdv":12,"won":4,"tx_conv":33.33,"tx_rdv":37.5,"name":"LE FIGARO"},{"total":14,"rdv":5,"won":0,"tx_conv":0.0,"tx_rdv":35.71,"name":"WHO'S WHO AVOCATS"},{"total":11,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"FESTIVAL DE CANNES - VILLA Forbes"}],"total":{"total":39944,"rdv":9215,"won":347,"tx_conv":3.77,"tx_rdv":23.07,"name":"TOTAL"}},"Marketing":{"rows":[{"total":2681,"rdv":2674,"won":88,"tx_conv":3.29,"tx_rdv":99.74,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":406,"rdv":395,"won":21,"tx_conv":5.32,"tx_rdv":97.29,"name":"BFM_TRAJECTOIRE"},{"total":120,"rdv":118,"won":7,"tx_conv":5.93,"tx_rdv":98.33,"name":"MASTERCLASS"},{"total":73,"rdv":72,"won":5,"tx_conv":6.94,"tx_rdv":98.63,"name":"WHO'S WHO DECIDEURS"},{"total":53,"rdv":53,"won":2,"tx_conv":3.77,"tx_rdv":100.0,"name":"WHO'S WHO LEADERS"},{"total":34,"rdv":34,"won":1,"tx_conv":2.94,"tx_rdv":100.0,"name":"BFM_OBJ"}],"total":{"total":3392,"rdv":3371,"won":126,"tx_conv":3.74,"tx_rdv":99.38,"name":"TOTAL"}},"SDR":{"rows":[{"total":850,"rdv":597,"won":26,"tx_conv":4.36,"tx_rdv":70.24,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":282,"rdv":217,"won":13,"tx_conv":5.99,"tx_rdv":76.95,"name":"BFM_TRAJECTOIRE"},{"total":57,"rdv":51,"won":0,"tx_conv":0.0,"tx_rdv":89.47,"name":"WHO'S WHO DECIDEURS"},{"total":55,"rdv":23,"won":2,"tx_conv":8.7,"tx_rdv":41.82,"name":"MASTERCLASS"},{"total":54,"rdv":49,"won":2,"tx_conv":4.08,"tx_rdv":90.74,"name":"TIME"},{"total":27,"rdv":24,"won":1,"tx_conv":4.17,"tx_rdv":88.89,"name":"WHO'S WHO LEADERS"},{"total":10,"rdv":9,"won":2,"tx_conv":22.22,"tx_rdv":90.0,"name":"PLAN MEDIA"}],"total":{"total":1375,"rdv":1005,"won":47,"tx_conv":4.68,"tx_rdv":73.09,"name":"TOTAL"}},"Mix Mkt/SDR":{"rows":[{"total":224,"rdv":224,"won":19,"tx_conv":8.48,"tx_rdv":100.0,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":101,"rdv":100,"won":3,"tx_conv":3.0,"tx_rdv":99.01,"name":"BFM_TRAJECTOIRE"},{"total":11,"rdv":11,"won":1,"tx_conv":9.09,"tx_rdv":100.0,"name":"MASTERCLASS"}],"total":{"total":364,"rdv":363,"won":25,"tx_conv":6.89,"tx_rdv":99.73,"name":"TOTAL"}},"Sales":{"rows":[{"total":14287,"rdv":1982,"won":52,"tx_conv":2.62,"tx_rdv":13.87,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":6167,"rdv":676,"won":24,"tx_conv":3.55,"tx_rdv":10.96,"name":"MASTERCLASS"},{"total":5155,"rdv":535,"won":18,"tx_conv":3.36,"tx_rdv":10.38,"name":"BFM_TRAJECTOIRE"},{"total":4759,"rdv":489,"won":21,"tx_conv":4.29,"tx_rdv":10.28,"name":"WHO'S WHO DECIDEURS"},{"total":1660,"rdv":226,"won":5,"tx_conv":2.21,"tx_rdv":13.61,"name":"TIME"},{"total":1403,"rdv":285,"won":8,"tx_conv":2.81,"tx_rdv":20.31,"name":"WHO'S WHO LEADERS"},{"total":266,"rdv":107,"won":0,"tx_conv":0.0,"tx_rdv":40.23,"name":"BFM _FOCUS"},{"total":142,"rdv":6,"won":0,"tx_conv":0.0,"tx_rdv":4.23,"name":"TF1 INFO"},{"total":117,"rdv":4,"won":1,"tx_conv":25.0,"tx_rdv":3.42,"name":"MADAME FIGARO"},{"total":103,"rdv":11,"won":4,"tx_conv":36.36,"tx_rdv":10.68,"name":"MARIE CLAIRE"},{"total":86,"rdv":14,"won":0,"tx_conv":0.0,"tx_rdv":16.28,"name":"BFM_TATD"},{"total":68,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":7.35,"name":"FORBES_AI"},{"total":62,"rdv":32,"won":3,"tx_conv":9.38,"tx_rdv":51.61,"name":"PLAN MEDIA"},{"total":26,"rdv":8,"won":3,"tx_conv":37.5,"tx_rdv":30.77,"name":"LE FIGARO"},{"total":14,"rdv":5,"won":0,"tx_conv":0.0,"tx_rdv":35.71,"name":"WHO'S WHO AVOCATS"},{"total":11,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"FESTIVAL DE CANNES - VILLA Forbes"}],"total":{"total":34554,"rdv":4435,"won":147,"tx_conv":3.31,"tx_rdv":12.83,"name":"TOTAL"}}}},"2026-01":{"sources":["Interne","Marketing","Mix Mkt/SDR","Outils","Recommandation","SDR","Sales"],"by_source":{"all":{"rows":[{"total":3538,"rdv":1079,"won":44,"tx_conv":4.08,"tx_rdv":30.5,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":1428,"rdv":176,"won":8,"tx_conv":4.55,"tx_rdv":12.32,"name":"WHO'S WHO DECIDEURS"},{"total":1125,"rdv":204,"won":10,"tx_conv":4.9,"tx_rdv":18.13,"name":"BFM_TRAJECTOIRE"},{"total":466,"rdv":70,"won":6,"tx_conv":8.57,"tx_rdv":15.02,"name":"MASTERCLASS"},{"total":333,"rdv":31,"won":1,"tx_conv":3.23,"tx_rdv":9.31,"name":"TIME"},{"total":264,"rdv":105,"won":2,"tx_conv":1.9,"tx_rdv":39.77,"name":"WHO'S WHO LEADERS"},{"total":107,"rdv":4,"won":0,"tx_conv":0.0,"tx_rdv":3.74,"name":"MADAME FIGARO"},{"total":92,"rdv":10,"won":4,"tx_conv":40.0,"tx_rdv":10.87,"name":"MARIE CLAIRE"},{"total":45,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":4.44,"name":"TF1 INFO"},{"total":21,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":4.76,"name":"FORBES_AI"},{"total":15,"rdv":12,"won":0,"tx_conv":0.0,"tx_rdv":80.0,"name":"PLAN MEDIA"},{"total":14,"rdv":5,"won":1,"tx_conv":20.0,"tx_rdv":35.71,"name":"LE FIGARO"},{"total":13,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":15.38,"name":"BFM_TATD"},{"total":10,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":3,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":66.67,"name":"RDV RP sur mesure"}],"total":{"total":7516,"rdv":1708,"won":79,"tx_conv":4.63,"tx_rdv":22.72,"name":"TOTAL"}},"Marketing":{"rows":[{"total":570,"rdv":570,"won":22,"tx_conv":3.86,"tx_rdv":100.0,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":67,"rdv":57,"won":2,"tx_conv":3.51,"tx_rdv":85.07,"name":"BFM_TRAJECTOIRE"},{"total":31,"rdv":31,"won":1,"tx_conv":3.23,"tx_rdv":100.0,"name":"WHO'S WHO LEADERS"},{"total":26,"rdv":26,"won":3,"tx_conv":11.54,"tx_rdv":100.0,"name":"MASTERCLASS"},{"total":26,"rdv":26,"won":2,"tx_conv":7.69,"tx_rdv":100.0,"name":"WHO'S WHO DECIDEURS"}],"total":{"total":727,"rdv":717,"won":31,"tx_conv":4.32,"tx_rdv":98.62,"name":"TOTAL"}},"SDR":{"rows":[{"total":62,"rdv":56,"won":7,"tx_conv":12.5,"tx_rdv":90.32,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":43,"rdv":34,"won":3,"tx_conv":8.82,"tx_rdv":79.07,"name":"BFM_TRAJECTOIRE"},{"total":19,"rdv":18,"won":0,"tx_conv":0.0,"tx_rdv":94.74,"name":"WHO'S WHO DECIDEURS"},{"total":10,"rdv":8,"won":0,"tx_conv":0.0,"tx_rdv":80.0,"name":"WHO'S WHO LEADERS"},{"total":9,"rdv":8,"won":1,"tx_conv":12.5,"tx_rdv":88.89,"name":"TIME"},{"total":3,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":66.67,"name":"MASTERCLASS"}],"total":{"total":150,"rdv":130,"won":12,"tx_conv":9.23,"tx_rdv":86.67,"name":"TOTAL"}},"Mix Mkt/SDR":{"rows":[{"total":41,"rdv":41,"won":3,"tx_conv":7.32,"tx_rdv":100.0,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":16,"rdv":15,"won":2,"tx_conv":13.33,"tx_rdv":93.75,"name":"BFM_TRAJECTOIRE"},{"total":3,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":100.0,"name":"WHO'S WHO LEADERS"}],"total":{"total":62,"rdv":61,"won":5,"tx_conv":8.2,"tx_rdv":98.39,"name":"TOTAL"}},"Sales":{"rows":[{"total":2836,"rdv":411,"won":12,"tx_conv":2.92,"tx_rdv":14.49,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":1373,"rdv":130,"won":6,"tx_conv":4.62,"tx_rdv":9.47,"name":"WHO'S WHO DECIDEURS"},{"total":996,"rdv":98,"won":3,"tx_conv":3.06,"tx_rdv":9.84,"name":"BFM_TRAJECTOIRE"},{"total":434,"rdv":40,"won":2,"tx_conv":5.0,"tx_rdv":9.22,"name":"MASTERCLASS"},{"total":320,"rdv":21,"won":0,"tx_conv":0.0,"tx_rdv":6.56,"name":"TIME"},{"total":220,"rdv":63,"won":1,"tx_conv":1.59,"tx_rdv":28.64,"name":"WHO'S WHO LEADERS"},{"total":106,"rdv":3,"won":0,"tx_conv":0.0,"tx_rdv":2.83,"name":"MADAME FIGARO"},{"total":91,"rdv":9,"won":4,"tx_conv":44.44,"tx_rdv":9.89,"name":"MARIE CLAIRE"},{"total":45,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":4.44,"name":"TF1 INFO"},{"total":21,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":4.76,"name":"FORBES_AI"},{"total":13,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":15.38,"name":"BFM_TATD"},{"total":11,"rdv":3,"won":1,"tx_conv":33.33,"tx_rdv":27.27,"name":"LE FIGARO"},{"total":10,"rdv":8,"won":0,"tx_conv":0.0,"tx_rdv":80.0,"name":"PLAN MEDIA"},{"total":10,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"FESTIVAL DE CANNES - VILLA Forbes"},{"total":3,"rdv":2,"won":1,"tx_conv":50.0,"tx_rdv":66.67,"name":"RDV RP sur mesure"}],"total":{"total":6528,"rdv":796,"won":31,"tx_conv":3.89,"tx_rdv":12.19,"name":"TOTAL"}},"Outils":{"rows":[{"total":26,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":3.85,"name":"BFM _ PAROLES D'ENTREPRISES"},{"total":3,"rdv":0,"won":0,"tx_conv":null,"tx_rdv":0.0,"name":"BFM_TRAJECTOIRE"}],"total":{"total":32,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":3.12,"name":"TOTAL"}},"Interne":{"rows":[{"total":8,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":12.5,"name":"WHO'S WHO DECIDEURS"}],"total":{"total":14,"rdv":2,"won":0,"tx_conv":0.0,"tx_rdv":14.29,"name":"TOTAL"}},"Recommandation":{"rows":[],"total":{"total":3,"rdv":1,"won":0,"tx_conv":0.0,"tx_rdv":33.33,"name":"TOTAL"}}}}};
+const CAT_BG={Sales:"#F1EFE8",Marketing:"#E1F5EE",SDR:"#EEEDFE","Mix Mkt/SDR":"#FBEAF0",Interne:"#E6F1FB",Outils:"#F1EFE8",Recommandation:"#FAEEDA",Evenements:"#FAEEDA",Ads:"#FAECE7"};
+const CAT_TX={Sales:"#444441",Marketing:"#085041",SDR:"#3C3489","Mix Mkt/SDR":"#72243E",Interne:"#0C447C",Outils:"#444441",Recommandation:"#633806",Evenements:"#633806",Ads:"#712B13"};
+let period="2026-01", source="all";
+const fmt=n=>Math.round(n).toLocaleString("fr-FR");
+const fmtE=n=>Math.round(n).toLocaleString("fr-FR")+" €";
+
+function getSalesAlloc(pipe, p){
+  const cap=CAPACITY[pipe][p], cost=SALES_COSTS[pipe][p];
+  if(!cap||!cost) return {};
+  const used={};
+  let tot=0;
+  for(const cat in HOURS_BY_CAT[pipe]){
+    const h=HOURS_BY_CAT[pipe][cat][p]||0;
+    used[cat]=h; tot+=h;
+  }
+  const nonRdv=Math.max(0,cap-tot);
+  used['Sales']=(used['Sales']||0)+nonRdv;
+  const alloc={};
+  for(const cat in used) alloc[cat]=Math.round(cost*used[cat]/cap);
+  return alloc;
+}
+
+function renderCatTable(pipe){
+  const block=CAT[pipe][period];
+  if(!block) return;
+  const rows=block.rows, total=block.total;
+  const cost=COSTS[pipe][period];
+  const salesAlloc=getSalesAlloc(pipe,period);
+  const mktContacts=MKT_C[pipe][period];
+  const validConv=rows.map(r=>r.tx_conv).filter(v=>v!==null);
+  const maxConv=validConv.length?Math.max(...validConv):0;
+  let html='';
+  rows.forEach(r=>{
+    const isS=r.name==='Sales',isM=r.name==='Marketing',isSDR=r.name==='SDR',isMix=r.name==='Mix Mkt/SDR';
+    let catCost=0;
+    if(isM) catCost=cost;
+    else if(isSDR) catCost=SDR_COSTS[pipe][period];
+    else if(isMix) catCost=MIX_COSTS[pipe][period];
+    const salesPart=salesAlloc[r.name]||0;
+    const fullCost=catCost+salesPart;
+    let costCell='<span class="dash-c">—</span>',cplCell='<span class="dash-c">—</span>',cpaCell='<span class="dash-c">—</span>';
+    if(isS){
+      if(salesPart>0){
+        costCell=`<span class="cost">${fmtE(salesPart)}</span>`;
+        if(r.rdv>0) cplCell=`<span class="cpl">${fmtE(Math.round(salesPart/r.rdv))}</span>`;
+        if(r.won>0) cpaCell=`<span class="cpa">${fmtE(Math.round(salesPart/r.won))}</span>`;
+      }
+    } else if(catCost>0||salesPart>0){
+      costCell=catCost>0?`<span class="cost">${fmtE(catCost)}</span><span class="full"> (${fmtE(fullCost)})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(fullCost)})</span>`;
+      if(r.rdv>0){
+        const cD=catCost>0?Math.round(catCost/r.rdv):0,cF=Math.round(fullCost/r.rdv);
+        cplCell=cD>0?`<span class="cpl">${fmtE(cD)}</span><span class="full"> (${fmtE(cF)})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(cF)})</span>`;
+      }
+      if(r.won>0){
+        const aD=catCost>0?Math.round(catCost/r.won):0,aF=Math.round(fullCost/r.won);
+        cpaCell=aD>0?`<span class="cpa">${fmtE(aD)}</span><span class="full"> (${fmtE(aF)})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(aF)})</span>`;
+      }
+    }
+    const contactCell=isM?`<span style="font-weight:500">${fmt(mktContacts)}</span>`:`<span style="font-weight:500">${fmt(r.total)}</span>`;
+    let rdvCell='<span class="dash-c">—</span>';
+    if(isM&&mktContacts>0) rdvCell=`<span class="pr">${(r.rdv/mktContacts*100).toFixed(2)}%</span>`;
+    else if(r.tx_rdv!=null) rdvCell=`<span class="pr">${r.tx_rdv.toFixed(2)}%</span>`;
+    let convCell;
+    if(r.tx_conv===null||r.tx_conv===undefined) convCell='<span class="dash-c">—</span>';
+    else{const w=maxConv>0?r.tx_conv/maxConv*100:0;const cls=r.tx_conv===0?'pz':'pc';convCell=`<div class="bw"><div class="bar"><div class="bf fc" style="width:${w}%"></div></div><span class="${cls}">${r.tx_conv.toFixed(2)}%</span></div>`;}
+    html+=`<tr><td><span class="cat-tag" style="background:${CAT_BG[r.name]||'#F1EFE8'};color:${CAT_TX[r.name]||'#444441'}">${r.name}</span></td><td class="num">${costCell}</td><td class="num">${contactCell}</td><td class="num">${rdvCell}</td><td class="num">${fmt(r.rdv)}</td><td class="num">${cplCell}</td><td class="num">${convCell}</td><td class="num">${fmt(r.won)}</td><td class="num">${cpaCell}</td></tr>`;
+  });
+  const mktRow=rows.find(r=>r.name==='Marketing');
+  const contactTotal=(total.total-(mktRow?mktRow.total:0))+mktContacts;
+  const directCost=cost+SDR_COSTS[pipe][period]+MIX_COSTS[pipe][period];
+  const totalCost=directCost+SALES_COSTS[pipe][period];
+  const cplT=total.rdv>0?Math.round(directCost/total.rdv):null;
+  const cplTF=total.rdv>0?Math.round(totalCost/total.rdv):null;
+  const cpaT=total.won>0?Math.round(directCost/total.won):null;
+  const cpaTF=total.won>0?Math.round(totalCost/total.won):null;
+  const totRdv=contactTotal>0?(total.rdv/contactTotal*100).toFixed(2)+'%':'—';
+  html+=`<tr class="tot"><td>TOTAL</td><td class="num">${fmtE(directCost)}<span class="full"> (${fmtE(totalCost)})</span></td><td class="num">${fmt(contactTotal)}</td><td class="num"><span style="color:var(--color-text-secondary);font-size:10px">global ${totRdv}</span></td><td class="num">${fmt(total.rdv)}</td><td class="num">${cplT!==null?fmtE(cplT)+'<span class="full"> ('+fmtE(cplTF)+')</span>':'—'}</td><td class="num">${total.tx_conv!==null?total.tx_conv.toFixed(2)+'%':'—'}</td><td class="num">${fmt(total.won)}</td><td class="num">${cpaT!==null?fmtE(cpaT)+'<span class="full"> ('+fmtE(cpaTF)+')</span>':'—'}</td></tr>`;
+  document.getElementById('tbl-cat-'+pipe).innerHTML=html;
+  document.getElementById('cat-'+pipe+'-tot').innerHTML=`<b>${fmt(contactTotal)}</b> contacts · <b>${fmt(total.rdv)}</b> RDV · <b>${fmt(total.won)}</b> signées`;
+}
+
+function renderMedTable(pipe){
+  const block=MED[pipe][period]||MED[pipe]['all'];
+  if(!block){document.getElementById('tbl-med-'+pipe).innerHTML='<tr><td colspan="9" style="text-align:center;padding:1rem;color:var(--color-text-tertiary)">Aucune donnée</td></tr>';return;}
+  const srcBlock=block.by_source[source]||block.by_source['all'];
+  if(!srcBlock){document.getElementById('tbl-med-'+pipe).innerHTML='<tr><td colspan="9" style="text-align:center;padding:1rem;color:var(--color-text-tertiary)">Aucune donnée</td></tr>';return;}
+  const rows=srcBlock.rows, total=srcBlock.total;
+  const costPipe=COSTS[pipe][period];
+  const sdrCost=SDR_COSTS[pipe][period];
+  const mixCost=MIX_COSTS[pipe][period];
+  const mktC=MKT_C[pipe][period];
+  const salesAlloc=getSalesAlloc(pipe,period);
+  const mktBlock=block.by_source['Marketing'];
+  const sdrBlock=block.by_source['SDR'];
+  const mixBlock=block.by_source['Mix Mkt/SDR'];
+  const mktTotal=mktBlock?mktBlock.total.total:0;
+  const sdrTotal=sdrBlock?sdrBlock.total.total:0;
+  const mixTotal=mixBlock?mixBlock.total.total:0;
+  const mktRdvTotal=mktBlock?mktBlock.total.rdv:0;
+  const txRdvMkt=mktC>0?mktRdvTotal/mktC:0;
+  const mktMap={},sdrMap={},mixMap={};
+  if(mktBlock) mktBlock.rows.forEach(r=>{mktMap[r.name]=r;});
+  if(sdrBlock) sdrBlock.rows.forEach(r=>{sdrMap[r.name]=r;});
+  if(mixBlock) mixBlock.rows.forEach(r=>{mixMap[r.name]=r;});
+  const validConv=rows.map(r=>r.tx_conv).filter(v=>v!==null);
+  const maxConv=validConv.length?Math.max(...validConv):0;
+  let html='';
+  rows.forEach(r=>{
+    let costA=0,salesA=0;
+    if(source==='all'||source==='Marketing'){const mr=mktMap[r.name];if(mr&&mktTotal>0) costA+=costPipe*(mr.total/mktTotal);}
+    if(source==='all'||source==='SDR'){const sr=sdrMap[r.name];if(sr&&sdrTotal>0) costA+=sdrCost*(sr.total/sdrTotal);}
+    if(source==='all'||source==='Mix Mkt/SDR'){const xr=mixMap[r.name];if(xr&&mixTotal>0) costA+=mixCost*(xr.total/mixTotal);}
+    if(['Marketing','SDR','Mix Mkt/SDR'].includes(source)){
+      const cb=block.by_source[source];
+      if(cb&&cb.total.total>0) salesA=(salesAlloc[source]||0)*(r.total/cb.total.total);
+    } else if(source==='all'){
+      for(const cat of['Marketing','SDR','Mix Mkt/SDR']){const cb=block.by_source[cat];if(!cb||cb.total.total<=0)continue;const mr=cb.rows.find(x=>x.name===r.name);if(mr)salesA+=(salesAlloc[cat]||0)*(mr.total/cb.total.total);}
+    }
+    const fullCost=costA+salesA;
+    let costCell='<span class="dash-c">—</span>',cplCell='<span class="dash-c">—</span>',cpaCell='<span class="dash-c">—</span>';
+    if(costA>0||salesA>0){
+      costCell=costA>0?`<span class="cost">${fmtE(Math.round(costA))}</span><span class="full"> (${fmtE(Math.round(fullCost))})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(Math.round(fullCost))})</span>`;
+      if(r.rdv>0){const cD=costA>0?Math.round(costA/r.rdv):0,cF=Math.round(fullCost/r.rdv);cplCell=cD>0?`<span class="cpl">${fmtE(cD)}</span><span class="full"> (${fmtE(cF)})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(cF)})</span>`;}
+      if(r.won>0){const aD=costA>0?Math.round(costA/r.won):0,aF=Math.round(fullCost/r.won);cpaCell=aD>0?`<span class="cpa">${fmtE(aD)}</span><span class="full"> (${fmtE(aF)})</span>`:`<span class="dash-c">—</span><span class="full"> (${fmtE(aF)})</span>`;}
+    }
+    let contactV=r.total;
+    if(source==='Marketing'){const mr=mktMap[r.name];contactV=mr&&txRdvMkt>0?Math.round(mr.rdv/txRdvMkt):0;}
+    const txRdv=contactV>0?(r.rdv/contactV*100):null;
+    const rdvCell=txRdv!==null?`<span class="pr">${txRdv.toFixed(2)}%</span>`:'<span class="dash-c">—</span>';
+    let convCell;
+    if(r.tx_conv===null||r.tx_conv===undefined) convCell='<span class="dash-c">—</span>';
+    else{const w=maxConv>0?r.tx_conv/maxConv*100:0;const cls=r.tx_conv===0?'pz':'pc';convCell=`<div class="bw"><div class="bar"><div class="bf fc" style="width:${w}%"></div></div><span class="${cls}">${r.tx_conv.toFixed(2)}%</span></div>`;}
+    html+=`<tr><td><span class="media-name">${r.name}</span></td><td class="num">${costCell}</td><td class="num"><span style="font-weight:500">${fmt(contactV)}</span></td><td class="num">${rdvCell}</td><td class="num">${fmt(r.rdv)}</td><td class="num">${cplCell}</td><td class="num">${convCell}</td><td class="num">${fmt(r.won)}</td><td class="num">${cpaCell}</td></tr>`;
+  });
+  let costTot=0,salesTot=0;
+  if(source==='all'){costTot=costPipe+sdrCost+mixCost;salesTot=(salesAlloc['Marketing']||0)+(salesAlloc['SDR']||0)+(salesAlloc['Mix Mkt/SDR']||0);}
+  else if(source==='Marketing'){costTot=costPipe;salesTot=salesAlloc['Marketing']||0;}
+  else if(source==='SDR'){costTot=sdrCost;salesTot=salesAlloc['SDR']||0;}
+  else if(source==='Mix Mkt/SDR'){costTot=mixCost;salesTot=salesAlloc['Mix Mkt/SDR']||0;}
+  const fullTot=costTot+salesTot;
+  const cplT=total.rdv>0&&costTot>0?Math.round(costTot/total.rdv):null;
+  const cplTF=total.rdv>0&&fullTot>0?Math.round(fullTot/total.rdv):null;
+  const cpaT=total.won>0&&costTot>0?Math.round(costTot/total.won):null;
+  const cpaTF=total.won>0&&fullTot>0?Math.round(fullTot/total.won):null;
+  const totContact=source==='Marketing'?mktC:total.total;
+  const totRdv=totContact>0?(total.rdv/totContact*100).toFixed(2)+'%':'—';
+  const costTotStr=costTot>0?`${fmtE(costTot)}<span class="full"> (${fmtE(fullTot)})</span>`:(salesTot>0?`—<span class="full"> (${fmtE(salesTot)})</span>`:'—');
+  const cplTotStr=cplT!==null?`${fmtE(cplT)}<span class="full"> (${fmtE(cplTF)})</span>`:(cplTF?`—<span class="full"> (${fmtE(cplTF)})</span>`:'—');
+  const cpaTotStr=cpaT!==null?`${fmtE(cpaT)}<span class="full"> (${fmtE(cpaTF)})</span>`:(cpaTF?`—<span class="full"> (${fmtE(cpaTF)})</span>`:'—');
+  html+=`<tr class="tot"><td>TOTAL ${source==='all'?'(toutes sources)':source}</td><td class="num">${costTotStr}</td><td class="num">${fmt(totContact)}</td><td class="num">${totRdv}</td><td class="num">${fmt(total.rdv)}</td><td class="num">${cplTotStr}</td><td class="num">${total.tx_conv!==null?total.tx_conv.toFixed(2)+'%':'—'}</td><td class="num">${fmt(total.won)}</td><td class="num">${cpaTotStr}</td></tr>`;
+  document.getElementById('tbl-med-'+pipe).innerHTML=html;
+  document.getElementById('med-'+pipe+'-tot').innerHTML=`<b>${rows.length}</b> médias · <b>${fmt(total.rdv)}</b> RDV · <b>${fmt(total.won)}</b> signées`;
+}
+
+function renderSrcButtons(){
+  const bc=MED.conso[period]||MED.conso['all'];
+  const bb=MED.business[period]||MED.business['all'];
+  const srcs=new Set(['all']);
+  if(bc) bc.sources.forEach(s=>srcs.add(s));
+  if(bb) bb.sources.forEach(s=>srcs.add(s));
+  const labels={all:'Toutes sources',Sales:'Sales',Marketing:'Marketing',SDR:'SDR','Mix Mkt/SDR':'Mix Mkt/SDR',Interne:'Interne',Outils:'Outils',Recommandation:'Reco',Evenements:'Évén.',Ads:'Ads'};
+  document.getElementById('src-tg').innerHTML=[...srcs].map(s=>`<button class="${s===source?'act':''}" data-s="${s}" onclick="setS('${s}')">${labels[s]||s}</button>`).join('');
+}
+
+function setP(p){
+  period=p;
+  document.querySelectorAll('#month-tg button').forEach(b=>b.classList.toggle('act',b.dataset.p===p));
+  const bc=MED.conso[p],bb=MED.business[p];
+  const all=new Set(['all']);
+  if(bc) bc.sources.forEach(s=>all.add(s));
+  if(bb) bb.sources.forEach(s=>all.add(s));
+  if(!all.has(source)) source='all';
+  renderSrcButtons();renderAll();
+}
+function setS(s){
+  source=s;
+  document.querySelectorAll('#src-tg button').forEach(b=>b.classList.toggle('act',b.dataset.s===s));
+  renderMedTable('conso');renderMedTable('business');
+}
+function renderAll(){renderCatTable('conso');renderCatTable('business');renderMedTable('conso');renderMedTable('business');}
+
+const MONTH_LBL={'2025-10':'Oct 25','2025-11':'Nov 25','2025-12':'Déc 25','2026-01':'Jan 26','2026-02':'Fév 26','2026-03':'Mar 26'};
+const SERIES_COLORS={Sales:'#6B6B6B',Marketing:'#1D9E75',SDR:'#7F77DD',Mix:'#D4537E'};
+const SERIES_LABELS={Sales:'Sales',Marketing:'Marketing',SDR:'SDR',Mix:'Mix Mkt/SDR'};
+
+function drawChart(svgId,legId,pipe,metric,fmtFn){
+  const svg=document.getElementById(svgId);if(!svg)return;
+  const W=svg.clientWidth||400,H=160,pl=38,pr=10,pt=12,pb=26;
+  const iw=W-pl-pr,ih=H-pt-pb;
+  const months=SERIES.months;
+  const cats=['Sales','Marketing','SDR','Mix'];
+  let allVals=[];
+  cats.forEach(c=>SERIES[pipe][c].forEach(d=>{if(d[metric]!=null)allVals.push(d[metric]);}));
+  if(!allVals.length){svg.innerHTML='';return;}
+  let vMax=Math.max(...allVals)*1.1;
+  const nice=v=>{if(v<10)return Math.ceil(v);if(v<100)return Math.ceil(v/10)*10;if(v<1000)return Math.ceil(v/100)*100;return Math.ceil(v/500)*500;};
+  vMax=nice(vMax);
+  const x=i=>pl+iw*i/(months.length-1);
+  const y=v=>pt+ih*(1-v/vMax);
+  let s='';
+  for(let i=0;i<=4;i++){const v=vMax*i/4,yy=y(v);s+=`<line x1="${pl}" y1="${yy}" x2="${W-pr}" y2="${yy}" stroke="var(--color-border-tertiary)" stroke-width="0.5"/><text x="${pl-4}" y="${yy+3}" font-size="9" fill="var(--color-text-tertiary)" text-anchor="end" font-family="var(--font-sans)">${fmtFn(v)}</text>`;}
+  months.forEach((m,i)=>{s+=`<text x="${x(i)}" y="${H-8}" font-size="9" fill="var(--color-text-tertiary)" text-anchor="middle" font-family="var(--font-sans)">${MONTH_LBL[m]}</text>`;});
+  cats.forEach(c=>{
+    const data=SERIES[pipe][c],color=SERIES_COLORS[c];
+    let path='',pts='',prev=false;
+    data.forEach((d,i)=>{
+      const v=d[metric];if(v==null){prev=false;return;}
+      const xi=x(i),yi=y(v);
+      path+=prev?` L${xi},${yi}`:`M${xi},${yi}`;
+      pts+=`<circle cx="${xi}" cy="${yi}" r="3" fill="${color}" stroke="white" stroke-width="1"><title>${SERIES_LABELS[c]} ${MONTH_LBL[months[i]]}: ${fmtFn(v)}</title></circle>`;
+      prev=true;
+    });
+    s+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round"/>${pts}`;
+  });
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=s;
+  document.getElementById(legId).innerHTML=cats.map(c=>`<span><i style="background:${SERIES_COLORS[c]}"></i>${SERIES_LABELS[c]}</span>`).join('');
+}
+
+function drawAllCharts(){
+  const fE=v=>v>=1000?Math.round(v/1000)+'k€':Math.round(v)+'€';
+  const fP=v=>v.toFixed(0)+'%';
+  ['conso','business'].forEach(p=>{
+    drawChart('ch-'+p+'-cpl','lg-'+p+'-cpl',p,'cpl',fE);
+    drawChart('ch-'+p+'-cpa','lg-'+p+'-cpa',p,'cpa',fE);
+    drawChart('ch-'+p+'-conv','lg-'+p+'-conv',p,'tx_conv',fP);
+  });
+}
+
+renderSrcButtons();renderAll();
+window.addEventListener('resize',drawAllCharts);
+setTimeout(drawAllCharts,150);
+</script>
+</body>
+</html>
