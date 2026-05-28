@@ -56,6 +56,15 @@
         <button class="btn-apply" onclick="App.refreshAll()" title="Actualiser">
           <span class="material-icons" style="font-size:16px;">refresh</span>
         </button>
+
+        <!-- Bloc utilisateur connecté -->
+        <div id="user-box" class="user-box hidden" title="">
+          <img id="user-avatar" class="user-avatar" alt="" referrerpolicy="no-referrer">
+          <span id="user-email" class="user-email"></span>
+          <button class="btn-logout" onclick="App.logout()" title="Se déconnecter">
+            <span class="material-icons" style="font-size:16px;">logout</span>
+          </button>
+        </div>
       </div>
     </header>
 

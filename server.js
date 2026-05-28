@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { handleBigQueryRoute } from './api/bigquery.js';
 import { handleSellsyRoute }   from './api/sellsy.js';
 import { handleChatRoute }     from './api/chat.js';
+import { handleAuthRoute, getSessionFromRequest } from './api/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,10 +35,63 @@ function safeFilePath(urlPath) {
   return fp;
 }
 
+// ─────────────────────────────────────────────────────────────────────
+//  Authentification
+// ─────────────────────────────────────────────────────────────────────
+//
+//  Toutes les routes sont protégées SAUF :
+//   - les routes /api/auth/*       (sinon impossible de se connecter)
+//   - /login.html                  (la page de login elle-même)
+//   - /style.css                   (utilisée par /login.html)
+//   - /favicon.ico
+//
+//  Pour les requêtes API → 401 JSON.
+//  Pour les requêtes HTML → redirection 302 vers /login.html.
+//
+const PUBLIC_PATHS = new Set([
+  '/login.html',
+  '/style.css',
+  '/favicon.ico',
+]);
+
+function isPublicPath(urlPath) {
+  if (PUBLIC_PATHS.has(urlPath)) return true;
+  if (urlPath.startsWith('/api/auth/')) return true;
+  return false;
+}
+
+function requireAuth(req, res, urlPath) {
+  const session = getSessionFromRequest(req);
+  if (session) return session;
+
+  // Pas de session → on refuse
+  if (urlPath.startsWith('/api/')) {
+    res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: 'Non authentifié.' }));
+  } else {
+    res.writeHead(302, { Location: '/login.html' });
+    res.end();
+  }
+  return null;
+}
+
 const server = http.createServer(async (req, res) => {
   const urlPath = req.url.split('?')[0];
 
   try {
+    // ── Routes publiques (login, config OAuth, assets de la page de login)
+    if (urlPath.startsWith('/api/auth/')) {
+      return handleAuthRoute(req, res);
+    }
+
+    if (isPublicPath(urlPath)) {
+      // Sert le fichier statique sans contrôle de session
+      return serveStatic(urlPath, res);
+    }
+
+    // ── À partir d'ici, authentification requise
+    if (!requireAuth(req, res, urlPath)) return;
+
     // Routes BigQuery (dashboard)
     if (urlPath === '/api/filters' || urlPath === '/api/dashboard') {
       return handleBigQueryRoute(req, res);
@@ -53,25 +107,9 @@ const server = http.createServer(async (req, res) => {
       return handleSellsyRoute(req, res);
     }
 
+    // Fichiers statiques protégés (dashboard.html, code.js, config.js, etc.)
     const target = urlPath === '/' ? '/dashboard.html' : urlPath;
-    const filePath = safeFilePath(target);
-
-    if (!filePath) {
-      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-      return res.end('403 Acces refuse');
-    }
-
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        return res.end('404 Fichier non trouve : ' + target);
-      }
-
-      const mime = MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
-
-      res.writeHead(200, { 'Content-Type': mime });
-      res.end(data);
-    });
+    return serveStatic(target, res);
 
   } catch (err) {
     console.error('[ERREUR]', err);
@@ -81,9 +119,31 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+function serveStatic(target, res) {
+  const filePath = safeFilePath(target);
+
+  if (!filePath) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('403 Acces refuse');
+  }
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('404 Fichier non trouve : ' + target);
+    }
+
+    const mime = MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
+
+    res.writeHead(200, { 'Content-Type': mime });
+    res.end(data);
+  });
+}
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log('');
   console.log('Serveur demarre sur http://localhost:' + PORT + '/');
+  console.log('Login    : http://localhost:' + PORT + '/login.html');
   console.log('Filtres  : http://localhost:' + PORT + '/api/filters');
   console.log('Dashboard: http://localhost:' + PORT + '/api/dashboard');
   console.log('Chat IA  : POST http://localhost:' + PORT + '/api/chat');
